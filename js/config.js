@@ -8,6 +8,8 @@ window.CONFIG = {
   whatsapp: "212675552211",
   instagram: "https://www.instagram.com/al_omda_001/",
   instagramHandle: "@al_omda_001",
+  // Full-width hero background photo, e.g. "assets/photos/hero.jpg". Empty = logo artwork.
+  heroImage: "",
   address: { fr: "Hay Anassi, Casablanca", ar: "حي أناسي، الدار البيضاء" },
   location: { lat: 33.592244, lng: -7.5007757 },
   // Same hours every day, 24h format, Casablanca time.
