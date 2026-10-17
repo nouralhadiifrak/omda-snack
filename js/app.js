@@ -203,26 +203,91 @@
     observeCategories();
   }
 
-  // Highlight the chip of the category currently on screen.
-  let catObserver;
+  // Mark a chip active and centre it in the chip bar. Only the bar scrolls
+  // sideways: scrollIntoView here would cancel the page's own smooth scroll.
+  function setActiveChip(id) {
+    const bar = $("#chips");
+    $$(".chip", bar).forEach((c) => {
+      const active = c.dataset.cat === id;
+      c.classList.toggle("is-active", active);
+      if (!active) return;
+      const chipBox = c.getBoundingClientRect();
+      const barBox = bar.getBoundingClientRect();
+      const delta = chipBox.left + chipBox.width / 2 - (barBox.left + barBox.width / 2);
+      bar.scrollBy({ left: delta, behavior: "smooth" });
+    });
+  }
+
+  // While a chip click is scrolling the page, the scroll spy waits until the
+  // page reaches the target (or the visitor scrolls by hand), so categories
+  // passed on the way don't steal the highlight.
+  let spyTarget = null;
+  let spyDeadline = 0;
+  const releaseSpy = () => (spyTarget = null);
+  ["wheel", "touchstart", "keydown"].forEach((ev) =>
+    window.addEventListener(ev, releaseSpy, { passive: true })
+  );
+
+  function scrollToCategory(id) {
+    const target = document.getElementById("cat-" + id);
+    if (!target) return;
+    const offset = $("#header").offsetHeight + $(".chips-wrap").offsetHeight + 16;
+    const maxTop = document.documentElement.scrollHeight - window.innerHeight;
+    const top = Math.max(0, Math.min(maxTop, target.getBoundingClientRect().top + window.scrollY - offset));
+    setActiveChip(id);
+    spyTarget = top;
+    spyDeadline = performance.now() + 3000;
+    window.scrollTo({ top, behavior: "smooth" });
+    history.replaceState(null, "", "#cat-" + id);
+  }
+
+  $("#chips").addEventListener("click", (e) => {
+    const chip = e.target.closest(".chip");
+    if (!chip) return;
+    e.preventDefault();
+    scrollToCategory(chip.dataset.cat);
+  });
+
+  // Highlight the chip of the category under the sticky bars. On wide screens
+  // two categories share a row, so keep the current one while it is still there.
+  function spyCategories() {
+    if (spyTarget !== null) {
+      if (Math.abs(window.scrollY - spyTarget) < 2 || performance.now() > spyDeadline) spyTarget = null;
+      return;
+    }
+    const line = $("#header").offsetHeight + $(".chips-wrap").offsetHeight + 40;
+    const here = $$(".cat").filter((c) => {
+      const box = c.getBoundingClientRect();
+      return box.top <= line && box.bottom > line;
+    });
+    if (!here.length) return;
+    const current = $(".chip.is-active")?.dataset.cat;
+    if (here.some((c) => c.id === "cat-" + current)) return;
+    setActiveChip(here[0].id.replace("cat-", ""));
+  }
+
+  let spyFrame = 0;
+  window.addEventListener(
+    "scroll",
+    () => {
+      cancelAnimationFrame(spyFrame);
+      spyFrame = requestAnimationFrame(spyCategories);
+    },
+    { passive: true }
+  );
+
   function observeCategories() {
-    catObserver?.disconnect();
-    if (!("IntersectionObserver" in window)) return;
-    catObserver = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (!entry.isIntersecting) return;
-          const id = entry.target.id.replace("cat-", "");
-          $$(".chip").forEach((c) => {
-            const active = c.dataset.cat === id;
-            c.classList.toggle("is-active", active);
-            if (active) c.scrollIntoView({ block: "nearest", inline: "center", behavior: "smooth" });
-          });
-        });
-      },
-      { rootMargin: "-45% 0px -50% 0px" }
-    );
-    $$(".cat").forEach((s) => catObserver.observe(s));
+    spyCategories();
+  }
+
+  // Scrolling text bands under the hero. The list is doubled so the loop is seamless.
+  function renderBands() {
+    $$("[data-band]").forEach((track) => {
+      const words = t(track.dataset.band).split("|");
+      const half = () =>
+        el("div", { class: "band__group" }, [...words, ...words].map((w) => el("span", { class: "band__item" }, w)));
+      track.replaceChildren(half(), half());
+    });
   }
 
   function renderSauces() {
@@ -249,6 +314,10 @@
     const ig = $("#info-instagram");
     ig.href = CONFIG.instagram;
     ig.textContent = "Instagram · " + CONFIG.instagramHandle;
+    $("#hero-location").href = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+    const fab = $("#ig-fab");
+    fab.href = CONFIG.instagram;
+    fab.setAttribute("aria-label", "Instagram " + CONFIG.instagramHandle);
     const map = $("#map");
     const src = `https://maps.google.com/maps?q=${lat},${lng}&z=17&hl=${lang}&output=embed`;
     if (map.src !== src) map.src = src;
@@ -405,6 +474,7 @@
     countEl.textContent = count;
     countEl.hidden = count === 0;
     $("#cart-bar").hidden = count === 0;
+    document.body.classList.toggle("has-cart", count > 0);
     $("#cart-bar-count").textContent = count;
     $("#cart-bar-total").textContent = total;
     $("#cart-total").textContent = total;
@@ -577,6 +647,7 @@
   function render() {
     applyI18n();
     renderMenu();
+    renderBands();
     renderSauces();
     renderInfo();
     renderStatus();
@@ -589,7 +660,25 @@
     render();
   });
 
+  // Hero photo (optional): replaces the logo artwork when set in config.js.
+  if (CONFIG.heroImage) {
+    const photo = $("#hero-photo");
+    photo.src = CONFIG.heroImage;
+    photo.hidden = false;
+    $("#hero").classList.add("has-photo");
+  }
+
+  // Solid header once the page leaves the hero.
+  const header = $("#header");
+  const syncHeader = () => header.classList.toggle("is-scrolled", window.scrollY > 24);
+  window.addEventListener("scroll", syncHeader, { passive: true });
+  syncHeader();
+
   $("#year").textContent = new Date().getFullYear();
   render();
+
+  // Opening the page on a category link (e.g. shared #cat-pizza) lands below the sticky bars.
+  const initial = window.location.hash.match(/^#cat-(.+)$/);
+  if (initial) requestAnimationFrame(() => scrollToCategory(initial[1]));
   setInterval(renderStatus, 60 * 1000);
 })();

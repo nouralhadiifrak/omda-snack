@@ -39,6 +39,17 @@ Each category shows a placeholder until it gets a photo. Put the photo in
 
 Landscape photos work best (around 1200×600).
 
+### Hero background photo
+
+The top section is built for a full-width food photo (like a shawarma plate shot from above).
+Put it in `assets/photos/` (at least 1920px wide) and set `heroImage` in `js/config.js`:
+
+```js
+heroImage: "assets/photos/hero.jpg",
+```
+
+Until then, the logo is shown in its place.
+
 ## Publishing on GitHub Pages
 
 In the repository settings, open **Pages** and deploy from the branch that holds the site, at the `/` (root) folder.
