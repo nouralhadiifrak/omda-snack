@@ -824,9 +824,9 @@
     }).addTo(map);
     L.circle([SHOP.lat, SHOP.lng], {
       radius: CONFIG.delivery.maxKm * 1000,
-      color: "#ffba08",
+      color: "#d00000",
       weight: 2,
-      fillColor: "#ffba08",
+      fillColor: "#d00000",
       fillOpacity: 0.08,
     }).addTo(map);
     L.marker([SHOP.lat, SHOP.lng], {
@@ -974,7 +974,7 @@
   const splash = $("#splash");
   const stage = $("#intro");
   const part = (n) => $(`.intro__${n}`, stage);
-  const hatEl = part("hat");
+  const hatEl = part("hatgroup");
   const tasselEl = part("tassel");
   const plateEl = part("plate");
   const moustacheEl = part("moustache");
@@ -1000,7 +1000,7 @@
 
   async function playIntro() {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const images = [hatEl, tasselEl, plateEl, moustacheEl];
+    const images = $$("img", stage);
     const ready = Promise.all(images.map((img) => img.decode().catch(() => {})));
     // Never hold the page back for long if the pictures are slow.
     const loadedInTime = await Promise.race([ready.then(() => true), wait(2500).then(() => false)]);
@@ -1025,7 +1025,6 @@
         { duration: 560, delay, easing: "ease-out" }
       );
     pop(hatEl, HAT_START, 0);
-    pop(tasselEl, HAT_START, 0);
     await pop(moustacheEl, MOUSTACHE_START, 90);
     await wait(250);
 
@@ -1052,7 +1051,6 @@
         { duration: 520, easing: spring }
       );
     knock(hatEl, HAT_START, -10);
-    knock(tasselEl, HAT_START, -10);
     knock(moustacheEl, MOUSTACHE_START, 14);
     anim(
       plateEl,
@@ -1078,7 +1076,8 @@
     sparks();
     await wait(560);
 
-    // 3. The tassel wiggles and settles.
+    // 3. The tassel swings from its knob and settles.
+    stage.classList.add("is-wiggling");
     await anim(
       tasselEl,
       [
@@ -1092,6 +1091,7 @@
       ],
       { duration: 1000, easing: "ease-in-out" }
     );
+    stage.classList.remove("is-wiggling");
 
     // 4. The finished logo glides into the header.
     await pageLoaded;
