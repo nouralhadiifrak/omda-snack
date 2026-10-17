@@ -141,7 +141,7 @@
     return el(
       "div",
       { class: "cat__placeholder", "aria-hidden": "true" },
-      el("span", { class: "cat__emoji" }, cat.emoji),
+      cat.icon ? el("img", { class: "cat__icon", src: cat.icon, alt: "", loading: "lazy" }) : el("span", { class: "cat__emoji" }, cat.emoji),
       el("span", { class: "cat__soon" }, t("menu.photoSoon"))
     );
   }
@@ -485,12 +485,12 @@
     saveCart();
     const { item, cat } = itemIndex.get(line.id);
     toast(`${t("cart.added")} · ${fullName(item, cat)}`);
-    emojiSpree(origin, item.emoji || cat.emoji);
+    emojiSpree(origin, item.emoji ? { emoji: item.emoji } : cat.icon ? { src: cat.icon } : { emoji: cat.emoji });
   }
 
-  // Emoji spree: a burst of the dish's emoji sprays out of the "+" button,
+  // Emoji spree: a burst of the dish's emoji (or illustration) sprays out of the "+" button,
   // spinning and falling under gravity, then the cart bumps.
-  function emojiSpree(origin, emoji) {
+  function emojiSpree(origin, { emoji, src }) {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (!origin || reduce || !origin.isConnected || !Element.prototype.animate) {
       bump();
@@ -508,7 +508,9 @@
     );
 
     for (let i = 0; i < count; i++) {
-      const node = el("span", { class: "spree", "aria-hidden": "true" }, emoji);
+      const node = src
+        ? el("img", { class: "spree spree--img", src, alt: "", "aria-hidden": "true" })
+        : el("span", { class: "spree", "aria-hidden": "true" }, emoji);
       node.style.left = `${cx}px`;
       node.style.top = `${cy}px`;
       document.body.append(node);

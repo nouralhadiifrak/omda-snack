@@ -768,6 +768,16 @@ textarea {
   line-height: 1;
   filter: drop-shadow(0 8px 10px rgba(0, 0, 0, 0.4));
 }
+.cat__icon {
+  width: 34%;
+  max-width: 150px;
+  height: auto;
+  filter: drop-shadow(0 10px 12px rgba(0, 0, 0, 0.25));
+}
+.cat--featured .cat__icon {
+  width: 46%;
+  max-width: 220px;
+}
 .cat--featured .cat__emoji {
   font-size: 6rem;
 }
@@ -1421,6 +1431,10 @@ textarea {
 }
 
 /* ---------- Emoji spree ---------- */
+.spree--img {
+  width: 2.6rem;
+  height: auto;
+}
 .spree {
   position: fixed;
   z-index: 90;

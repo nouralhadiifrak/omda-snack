@@ -14,6 +14,7 @@
  * Category fields:
  *   sauces: true     the customer can pick a sauce (sauces au choix)
  *   prefix           added before item names in the cart (e.g. "Pizza" + "Thon")
+ *   icon             illustration used instead of the emoji (placeholder and add-to-cart burst)
  */
 window.SAUCES = [
   { id: "algerienne", fr: "Algérienne", ar: "جزائرية", color: "#e9a07a" },
@@ -56,6 +57,7 @@ window.MENU = [
   },
   {
     id: "tacos",
+    icon: "assets/icons/tacos.png",
     fr: "Tacos",
     ar: "طاكوس",
     emoji: "🫓",
@@ -72,6 +74,7 @@ window.MENU = [
   },
   {
     id: "bowls",
+    icon: "assets/icons/tacos-bowl.png",
     fr: "Tacos Bowls",
     ar: "طاكوس بول",
     emoji: "🥣",
@@ -99,6 +102,7 @@ window.MENU = [
   },
   {
     id: "barquette",
+    icon: "assets/icons/nuggets.png",
     prefix: { fr: "Barquette", ar: "باركيت" },
     fr: "Barquettes",
     ar: "باركيت",
@@ -182,6 +186,7 @@ window.MENU = [
   },
   {
     id: "pasticcio",
+    icon: "assets/icons/pasticcio.png",
     prefix: { fr: "Pasticcio", ar: "باستيتشيو" },
     fr: "Pasticcio",
     ar: "باستيتشيو",
@@ -196,6 +201,7 @@ window.MENU = [
   },
   {
     id: "mac",
+    icon: "assets/icons/mac-cheese.png",
     prefix: { fr: "Mac & Cheese", ar: "ماك آند تشيز" },
     fr: "Mac & Cheese",
     ar: "ماك آند تشيز",
@@ -269,6 +275,7 @@ window.MENU = [
   },
   {
     id: "snacks",
+    icon: "assets/icons/cheesy-fries.png",
     fr: "Snacks",
     ar: "سناكس",
     emoji: "🍟",
@@ -279,6 +286,7 @@ window.MENU = [
   },
   {
     id: "kids",
+    icon: "assets/icons/kids-menu.png",
     fr: "Menu enfant",
     ar: "منيو الأطفال",
     emoji: "🧒",
