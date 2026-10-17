@@ -384,31 +384,37 @@ textarea {
   object-fit: cover;
   animation: hero-zoom 18s ease-out both;
 }
-.hero.has-photo .hero__mark {
+.hero.has-photo .hero__video {
   display: none;
 }
-.hero__mark {
+/* The shawarma video, shown as a tilted card on wide screens. */
+.hero__video {
   position: absolute;
   top: 50%;
-  inset-inline-end: 7%;
-  width: min(36vw, 420px);
-  height: auto;
-  transform: translateY(-50%) rotate(-6deg);
-  filter: drop-shadow(0 30px 40px rgba(0, 0, 0, 0.55));
-  animation: mark-float 7s ease-in-out infinite;
+  inset-inline-end: 8%;
+  height: min(74vh, 620px);
+  width: auto;
+  aspect-ratio: 576 / 1112;
+  object-fit: cover;
+  border-radius: 28px;
+  border: 3px solid rgba(246, 194, 28, 0.75);
+  box-shadow: 0 30px 60px -20px rgba(0, 0, 0, 0.7), 0 0 0 10px rgba(246, 194, 28, 0.08);
+  background: #1a120c;
+  transform: translateY(-50%) rotate(-4deg);
+  animation: card-float 7s ease-in-out infinite;
 }
-[dir="rtl"] .hero__mark {
-  transform: translateY(-50%) rotate(6deg);
-  animation-name: mark-float-rtl;
+[dir="rtl"] .hero__video {
+  transform: translateY(-50%) rotate(4deg);
+  animation-name: card-float-rtl;
 }
-@keyframes mark-float {
+@keyframes card-float {
   50% {
-    transform: translateY(calc(-50% - 14px)) rotate(-4deg);
+    transform: translateY(calc(-50% - 12px)) rotate(-2.5deg);
   }
 }
-@keyframes mark-float-rtl {
+@keyframes card-float-rtl {
   50% {
-    transform: translateY(calc(-50% - 14px)) rotate(4deg);
+    transform: translateY(calc(-50% - 12px)) rotate(2.5deg);
   }
 }
 @keyframes hero-zoom {
@@ -1640,19 +1646,25 @@ body.is-loading .brand img {
     align-items: flex-start;
     padding: calc(var(--header-h) + 8px) 0 88px;
   }
-  /* Logo artwork sits above the text on phones. */
+  /* On phones the video fills the hero behind the text. */
   .hero:not(.has-photo) .hero__inner {
-    padding-top: min(54vw, 300px);
+    padding-top: 30vh;
   }
-  .hero__mark {
-    top: calc(var(--header-h) + 4px);
-    inset-inline-end: 50%;
-    width: min(56vw, 300px);
-    transform: translateX(50%) rotate(-6deg);
+  .hero__video,
+  [dir="rtl"] .hero__video {
+    inset: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    transform: none;
     animation: none;
   }
-  [dir="rtl"] .hero__mark {
-    transform: translateX(-50%) rotate(6deg);
+  .hero__bg::after,
+  [dir="rtl"] .hero__bg::after {
+    background: linear-gradient(180deg, rgba(7, 13, 10, 0.55) 0%, rgba(7, 13, 10, 0.35) 25%, rgba(7, 13, 10, 0.8) 55%, rgba(7, 13, 10, 0.96) 100%);
   }
   .status {
     gap: 4px 8px;

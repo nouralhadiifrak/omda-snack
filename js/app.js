@@ -937,7 +937,14 @@
     renderGeoStatus();
   });
 
-  // Hero photo (optional): replaces the logo artwork when set in config.js.
+  // Hero video: stays on its first frame for visitors who ask for less motion.
+  const heroVideo = $("#hero-video");
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    heroVideo.removeAttribute("autoplay");
+    heroVideo.pause();
+  }
+
+  // Hero photo (optional): replaces the video when set in config.js.
   if (CONFIG.heroImage) {
     const photo = $("#hero-photo");
     photo.src = CONFIG.heroImage;
@@ -984,6 +991,11 @@
     if (!splash.isConnected) return;
     document.body.classList.remove("is-loading");
     splash.remove();
+    // Start the hero video from its first shot once the page is revealed.
+    if (!heroVideo.paused) {
+      heroVideo.currentTime = 0;
+      heroVideo.play().catch(() => {});
+    }
   }
 
   async function playIntro() {
