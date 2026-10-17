@@ -10,6 +10,8 @@
   <meta property="og:description" content="Le vrai goût de la shawarma à Hay Anassi, Casablanca.">
   <meta property="og:image" content="assets/logo.png">
   <link rel="icon" type="image/png" href="assets/logo.png">
+  <link rel="preload" as="image" href="assets/intro/hat.png">
+  <link rel="preload" as="image" href="assets/intro/plate.png">
   <link rel="apple-touch-icon" href="assets/logo.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -20,17 +22,20 @@
 <body class="is-loading">
   <!-- Intro animation -->
   <div class="splash" id="splash" aria-hidden="true">
-    <div class="splash__ring"></div>
-    <div class="splash__ring splash__ring--2"></div>
-    <img class="splash__logo" src="assets/logo.png" alt="" width="220" height="220">
-    <div class="splash__dots"><i></i><i></i><i></i></div>
+    <div class="splash__bg"></div>
+    <div class="intro" id="intro">
+      <img class="intro__part intro__moustache" src="assets/intro/moustache.png" alt="">
+      <img class="intro__part intro__plate" src="assets/intro/plate.png" alt="">
+      <img class="intro__part intro__hat" src="assets/intro/hat.png" alt="">
+      <img class="intro__part intro__tassel" src="assets/intro/tassel.png" alt="">
+    </div>
   </div>
   <a class="skip" href="#menu" data-i18n="nav.menu">Notre menu</a>
 
   <header class="header" id="header">
     <div class="container header__inner">
       <a href="#top" class="brand" aria-label="AL-OMDA · العمدة">
-        <img src="assets/logo.png" alt="AL-OMDA · العمدة" width="64" height="64">
+        <img src="assets/logo.png" alt="AL-OMDA · العمدة" width="64" height="60">
       </a>
       <nav class="nav" aria-label="Navigation">
         <a href="#menu" data-i18n="nav.menu">Notre menu</a>
@@ -147,7 +152,7 @@
 
   <footer class="footer">
     <div class="container footer__inner">
-      <img src="assets/logo.png" alt="AL-OMDA · العمدة" width="72" height="72">
+      <img src="assets/logo.png" alt="AL-OMDA · العمدة" width="72" height="67">
       <p>© <span id="year"></span> · <span data-i18n="footer.rights">Tous droits réservés.</span></p>
     </div>
   </footer>

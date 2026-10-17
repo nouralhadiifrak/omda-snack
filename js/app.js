@@ -961,21 +961,180 @@
   setInterval(renderStatus, 60 * 1000);
 
   // ---------- Intro animation ----------
-  // Shown at least long enough to play once, removed as soon as the page is ready.
+  // Yellow screen: the hat and moustache (photo 1) pop in, the name plate
+  // crashes in from the right between them, the tassel wiggles, then the
+  // finished logo glides into its place in the header.
   const splash = $("#splash");
-  const started = performance.now();
-  let splashHidden = false;
-  const hideSplash = () => {
-    if (splashHidden) return;
-    splashHidden = true;
-    const wait = Math.max(0, 1600 - (performance.now() - started));
-    setTimeout(() => {
-      splash.classList.add("is-done");
-      document.body.classList.remove("is-loading");
-      setTimeout(() => splash.remove(), 700);
-    }, wait);
-  };
-  if (document.readyState === "complete") hideSplash();
-  else window.addEventListener("load", hideSplash, { once: true });
-  setTimeout(hideSplash, 4000); // never block the page on a slow asset
+  const stage = $("#intro");
+  const part = (n) => $(`.intro__${n}`, stage);
+  const hatEl = part("hat");
+  const tasselEl = part("tassel");
+  const plateEl = part("plate");
+  const moustacheEl = part("moustache");
+  const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+  const pageLoaded = new Promise((r) =>
+    document.readyState === "complete" ? r() : window.addEventListener("load", r, { once: true })
+  );
+
+  // Photo-1 pose of each layer, relative to its final place in the logo.
+  const HAT_START = "translate(-1.35%, 25.9%) scale(1.2048)";
+  const MOUSTACHE_START = "translate(0, -45.8%) scale(1.111)";
+
+  function finishIntro() {
+    if (!splash.isConnected) return;
+    document.body.classList.remove("is-loading");
+    splash.remove();
+  }
+
+  async function playIntro() {
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const images = [hatEl, tasselEl, plateEl, moustacheEl];
+    const ready = Promise.all(images.map((img) => img.decode().catch(() => {})));
+    // Never hold the page back for long if the pictures are slow.
+    const loadedInTime = await Promise.race([ready.then(() => true), wait(2500).then(() => false)]);
+    if (!loadedInTime || reduce || !Element.prototype.animate) {
+      await pageLoaded;
+      splash.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 300, fill: "forwards" }).finished.then(finishIntro);
+      return;
+    }
+
+    const anim = (node, frames, opts) => node.animate(frames, { fill: "both", ...opts }).finished;
+    const spring = "cubic-bezier(.34,1.56,.64,1)";
+
+    // 1. Photo 1 pops in.
+    const pop = (node, base, delay) =>
+      anim(
+        node,
+        [
+          { opacity: 0, transform: `${base} translateY(-6%) scale(0.6)` },
+          { opacity: 1, transform: `${base} translateY(0) scale(1.06)`, offset: 0.7 },
+          { opacity: 1, transform: `${base} scale(1)` },
+        ],
+        { duration: 560, delay, easing: "ease-out" }
+      );
+    pop(hatEl, HAT_START, 0);
+    pop(tasselEl, HAT_START, 0);
+    await pop(moustacheEl, MOUSTACHE_START, 90);
+    await wait(250);
+
+    // 2. The name plate shoots in from the right...
+    const offRight = window.innerWidth;
+    await anim(
+      plateEl,
+      [
+        { opacity: 1, transform: `translateX(${offRight}px) rotate(-8deg) scaleX(1.15)` },
+        { opacity: 1, transform: "translateX(0) rotate(0) scaleX(1)" },
+      ],
+      { duration: 280, easing: "cubic-bezier(.55,0,1,.45)" }
+    );
+
+    // ...and crashes in: hat knocked up, moustache pushed down, plate squashes, screen shakes.
+    const knock = (node, from, lift) =>
+      anim(
+        node,
+        [
+          { opacity: 1, transform: from },
+          { opacity: 1, transform: `translateY(${lift}%) rotate(${lift < 0 ? -7 : 4}deg)`, offset: 0.35 },
+          { opacity: 1, transform: "translateY(0) rotate(0)" },
+        ],
+        { duration: 520, easing: spring }
+      );
+    knock(hatEl, HAT_START, -10);
+    knock(tasselEl, HAT_START, -10);
+    knock(moustacheEl, MOUSTACHE_START, 14);
+    anim(
+      plateEl,
+      [
+        { opacity: 1, transform: "scale(0.88, 1.14)" },
+        { opacity: 1, transform: "scale(1.06, 0.94)", offset: 0.4 },
+        { opacity: 1, transform: "scale(0.98, 1.02)", offset: 0.7 },
+        { opacity: 1, transform: "scale(1)" },
+      ],
+      { duration: 420, easing: "ease-out" }
+    );
+    splash.animate(
+      [
+        { transform: "translate(0, 0)" },
+        { transform: "translate(-14px, 6px)" },
+        { transform: "translate(12px, -5px)" },
+        { transform: "translate(-8px, 3px)" },
+        { transform: "translate(5px, -2px)" },
+        { transform: "translate(0, 0)" },
+      ],
+      { duration: 380, easing: "ease-out" }
+    );
+    sparks();
+    await wait(560);
+
+    // 3. The tassel wiggles and settles.
+    await anim(
+      tasselEl,
+      [
+        { transform: "rotate(0)" },
+        { transform: "rotate(-24deg)", offset: 0.14 },
+        { transform: "rotate(18deg)", offset: 0.32 },
+        { transform: "rotate(-11deg)", offset: 0.5 },
+        { transform: "rotate(7deg)", offset: 0.66 },
+        { transform: "rotate(-3deg)", offset: 0.82 },
+        { transform: "rotate(0)" },
+      ],
+      { duration: 1000, easing: "ease-in-out" }
+    );
+
+    // 4. The finished logo glides into the header.
+    await pageLoaded;
+    const target = $(".brand img").getBoundingClientRect();
+    const box = stage.getBoundingClientRect();
+    // The artwork fills 95.5% × 96.5% of the stage, centred; the stage scales from its top-left corner.
+    const scale = Math.min(target.width / (box.width * 0.955), target.height / (box.height * 0.965));
+    const tx = target.left + target.width / 2 - (box.left + (box.width * 0.5) * scale);
+    const ty = target.top + target.height / 2 - (box.top + (box.height * 0.5) * scale);
+    splash.querySelector(".splash__bg").animate([{ opacity: 1 }, { opacity: 0 }], {
+      duration: 650,
+      delay: 120,
+      easing: "ease-in",
+      fill: "forwards",
+    });
+    await anim(
+      stage,
+      [
+        { transform: "translate(0, 0) scale(1)" },
+        { transform: `translate(${tx * 0.5}px, ${ty * 0.5 - 40}px) scale(${(1 + scale) / 2}) rotate(-6deg)`, offset: 0.55 },
+        { transform: `translate(${tx}px, ${ty}px) scale(${scale})` },
+      ],
+      { duration: 820, easing: "cubic-bezier(.6,0,.25,1)" }
+    );
+    document.body.classList.remove("is-loading"); // header logo fades in under the landed one
+    await anim(stage, [{ opacity: 1 }, { opacity: 0 }], { duration: 220 });
+    finishIntro();
+  }
+
+  // A few black streaks burst out where the plate hits the hat and moustache.
+  function sparks() {
+    const spots = [
+      [20, 46, -150], [35, 45, -110], [65, 45, -70], [80, 46, -30],
+      [18, 79, 150], [40, 80, 110], [60, 80, 70], [82, 79, 30],
+    ];
+    spots.forEach(([x, y, deg]) => {
+      const s = el("span", { class: "intro__spark" });
+      s.style.left = `${x}%`;
+      s.style.top = `${y}%`;
+      stage.append(s);
+      const rad = (deg * Math.PI) / 180;
+      const dist = 60 + Math.random() * 40;
+      s.animate(
+        [
+          { transform: `rotate(${deg}deg) scaleX(0.3)`, opacity: 1 },
+          {
+            transform: `translate(${Math.cos(rad) * dist}px, ${Math.sin(rad) * dist}px) rotate(${deg}deg) scaleX(1.4)`,
+            opacity: 0,
+          },
+        ],
+        { duration: 420, easing: "ease-out", fill: "forwards" }
+      ).finished.then(() => s.remove());
+    });
+  }
+
+  playIntro().catch(finishIntro);
+  setTimeout(finishIntro, 9000); // safety net: never leave the page covered
 })();
