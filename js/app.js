@@ -167,7 +167,12 @@
               el(
                 "div",
                 { class: "item__text" },
-                el("span", { class: "item__name" }, name(item)),
+                el(
+                  "span",
+                  { class: "item__name" },
+                  item.emoji ? el("span", { class: "item__emoji", "aria-hidden": "true" }, item.emoji) : null,
+                  name(item)
+                ),
                 item.descFr ? el("span", { class: "item__desc" }, lang === "ar" ? item.descAr : item.descFr) : null
               ),
               priceLabel(item),
@@ -450,10 +455,9 @@
     $$('input[name="sauce"]', modal).forEach((box) => {
       box.disabled = full && !box.checked;
     });
-    $("#modal-qty").textContent = modalState.qty;
-    $("#modal-add").textContent = t("modal.add", {
-      price: money(unitPrice(modalState.item, line.size) * modalState.qty),
-    });
+    roll($("#modal-qty"), modalState.qty);
+    $('#item-modal .qty__btn[data-step="-1"]').disabled = modalState.qty <= 1;
+    setMoney($("#modal-price"), unitPrice(modalState.item, line.size) * modalState.qty);
   }
 
   $("#item-form").addEventListener("change", updateModal);
@@ -481,54 +485,124 @@
     saveCart();
     const { item, cat } = itemIndex.get(line.id);
     toast(`${t("cart.added")} · ${fullName(item, cat)}`);
-    flyToCart(origin, cat.emoji);
+    emojiSpree(origin, item.emoji || cat.emoji);
   }
 
-  // The dish's icon pops out of the "+" button and flies in an arc to the cart.
-  function flyToCart(origin, emoji) {
-    const target = $("#cart-open");
+  // Emoji spree: a burst of the dish's emoji sprays out of the "+" button,
+  // spinning and falling under gravity, then the cart bumps.
+  function emojiSpree(origin, emoji) {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (!origin || reduce || !origin.isConnected || !Element.prototype.animate) {
       bump();
       return;
     }
-    const from = origin.getBoundingClientRect();
-    const to = target.getBoundingClientRect();
-    const dx = to.left + to.width / 2 - (from.left + from.width / 2);
-    const dy = to.top + to.height / 2 - (from.top + from.height / 2);
+    const box = origin.getBoundingClientRect();
+    const cx = box.left + box.width / 2;
+    const cy = box.top + box.height / 2;
+    const count = 12;
+    const gravity = 900; // px/s²
 
-    // Outer element moves sideways at a steady pace, inner one rises then
-    // drops: together they trace a curve.
-    const outer = el("div", { class: "fly", "aria-hidden": "true" });
-    const inner = el("span", { class: "fly__icon" }, emoji);
-    outer.append(inner);
-    outer.style.left = `${from.left + from.width / 2}px`;
-    outer.style.top = `${from.top + from.height / 2}px`;
-    document.body.append(outer);
-
-    const duration = 850;
-    const lift = Math.min(160, Math.max(70, Math.abs(dy) * 0.35));
-    inner.animate(
-      [
-        { transform: "translate(-50%, -50%) scale(0.2)", opacity: 0 },
-        { transform: "translate(-50%, -50%) scale(1.5)", opacity: 1, offset: 0.18 },
-        { transform: "translate(-50%, -50%) scale(1.2)", offset: 0.3 },
-        { transform: "translate(-50%, -50%) scale(0.45)", opacity: 0.9 },
-      ],
-      { duration, easing: "ease-out", fill: "forwards" }
+    origin.animate(
+      [{ transform: "scale(1)" }, { transform: "scale(0.82)" }, { transform: "scale(1.18)" }, { transform: "scale(1)" }],
+      { duration: 380, easing: "ease-out" }
     );
-    outer.animate(
-      [
-        { transform: "translate(0, 0)" },
-        { transform: `translate(${dx * 0.06}px, ${-lift * 0.5}px)`, offset: 0.18 },
-        { transform: `translate(${dx * 0.45}px, ${Math.min(0, dy) - lift}px)`, offset: 0.5 },
-        { transform: `translate(${dx}px, ${dy}px)` },
-      ],
-      { duration, easing: "cubic-bezier(.45,.05,.55,.95)", fill: "forwards" }
-    ).finished.then(() => {
-      outer.remove();
-      bump();
+
+    for (let i = 0; i < count; i++) {
+      const node = el("span", { class: "spree", "aria-hidden": "true" }, emoji);
+      node.style.left = `${cx}px`;
+      node.style.top = `${cy}px`;
+      document.body.append(node);
+
+      // Mostly upward, fanned out to both sides.
+      const angle = (-90 + (Math.random() * 2 - 1) * 70) * (Math.PI / 180);
+      const speed = 260 + Math.random() * 260; // px/s
+      const vx = Math.cos(angle) * speed;
+      const vy = Math.sin(angle) * speed;
+      const spin = (Math.random() * 2 - 1) * 540;
+      const size = 0.7 + Math.random() * 0.7;
+      const duration = 900 + Math.random() * 500;
+      const secs = duration / 1000;
+
+      const frames = [];
+      for (let f = 0; f <= 10; f++) {
+        const p = f / 10;
+        const time = secs * p;
+        const x = vx * time;
+        const y = vy * time + 0.5 * gravity * time * time;
+        const grow = p < 0.15 ? 0.3 + (p / 0.15) * 0.7 : 1;
+        frames.push({
+          transform: `translate(calc(-50% + ${x}px), calc(-50% + ${y}px)) rotate(${spin * p}deg) scale(${size * grow})`,
+          opacity: p < 0.7 ? 1 : 1 - (p - 0.7) / 0.3,
+          offset: p,
+        });
+      }
+      node
+        .animate(frames, { duration, easing: "linear", delay: i * 12, fill: "forwards" })
+        .finished.then(() => node.remove());
+    }
+    setTimeout(bump, 260);
+  }
+
+  // Odometer-style number: changed digits slide out and the new ones roll in,
+  // upwards when the number grows and downwards when it shrinks.
+  function roll(node, value, from) {
+    const next = String(value);
+    if (from != null && node.dataset.v == null) setDigits(node, String(from));
+    const prev = node.dataset.v;
+    if (prev === next) return;
+    node.dataset.v = next;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const dir = prev == null || reduce || !Element.prototype.animate ? 0 : Number(next) >= Number(prev) ? 1 : -1;
+    const old = [...node.children].map((c) => c.dataset.ch);
+    const cells = [...next].map((ch, i) => {
+      const before = old[old.length - next.length + i];
+      const cell = el("span", { class: "roll__cell", dataset: { ch } }, el("span", { class: "roll__ch" }, ch));
+      if (dir && before !== ch) {
+        const delay = (next.length - 1 - i) * 40;
+        if (before != null) {
+          const out = el("span", { class: "roll__ch roll__ch--out" }, before);
+          cell.append(out);
+          out
+            .animate(
+              [
+                { transform: "translateY(0)", opacity: 1, filter: "blur(0)" },
+                { transform: `translateY(${-dir * 100}%)`, opacity: 0, filter: "blur(3px)" },
+              ],
+              { duration: 320, delay, easing: "cubic-bezier(.4,0,.2,1)", fill: "forwards" }
+            )
+            .finished.then(() => out.remove());
+        }
+        cell.firstChild.animate(
+          [
+            { transform: `translateY(${dir * 100}%)`, opacity: 0, filter: "blur(3px)" },
+            { transform: "translateY(0)", opacity: 1, filter: "blur(0)" },
+          ],
+          { duration: 520, delay, easing: "cubic-bezier(.34,1.56,.64,1)", fill: "backwards" }
+        );
+      }
+      return cell;
     });
+    node.replaceChildren(...cells);
+  }
+
+  function setDigits(node, text) {
+    node.dataset.v = text;
+    node.replaceChildren(
+      ...[...text].map((ch) => el("span", { class: "roll__cell", dataset: { ch } }, el("span", { class: "roll__ch" }, ch)))
+    );
+  }
+
+  // "65 DH" with a rolling number and a static currency.
+  function setMoney(node, amount, from) {
+    let num = $(".roll", node);
+    let cur = $(".money__cur", node);
+    if (!num) {
+      num = el("span", { class: "roll" });
+      cur = el("span", { class: "money__cur" });
+      node.replaceChildren(num, "\u00a0", cur);
+    }
+    cur.textContent = loc(CONFIG.currency);
+    roll(num, amount, from);
   }
 
   function setQty(key, qty) {
@@ -546,39 +620,48 @@
 
   function renderCart() {
     const count = cartCount();
-    const total = money(cartTotal());
     const fee = deliveryFee();
-    $("#cart-subtotal").textContent = money(cartSubtotal());
+    setMoney($("#cart-subtotal"), cartSubtotal());
     $("#fee-row").hidden = !fee;
-    $("#cart-fee").textContent = money(fee);
+    setMoney($("#cart-fee"), fee);
     $('[data-i18n="order.deliveryFee"]').textContent = t("order.deliveryFee", { fee: money(CONFIG.delivery.fee) });
     $('[data-i18n="order.deliveryHint"]').textContent = t("order.deliveryHint", { max: CONFIG.delivery.maxKm });
     const countEl = $("#cart-count");
-    countEl.textContent = count;
+    roll(countEl, count);
     countEl.hidden = count === 0;
     $("#cart-bar").hidden = count === 0;
     document.body.classList.toggle("has-cart", count > 0);
-    $("#cart-bar-count").textContent = count;
-    $("#cart-bar-total").textContent = money(cartSubtotal());
-    $("#cart-total").textContent = total;
+    roll($("#cart-bar-count"), count);
+    setMoney($("#cart-bar-total"), cartSubtotal());
+    setMoney($("#cart-total"), cartTotal());
     $("#cart-empty").hidden = count > 0;
     $("#checkout").hidden = count === 0;
     $("#cart-foot").hidden = count === 0;
 
+    // Lines are rebuilt on every change; remember the old numbers so they can roll.
+    const before = new Map(
+      $$(".cart-line").map((li) => [li.dataset.key, { qty: li.dataset.qty, price: li.dataset.price }])
+    );
     $("#cart-lines").replaceChildren(
       ...cart.map((line) => {
         const { item, cat } = itemIndex.get(line.id);
         const key = lineKey(line);
         const details = lineDetails(line);
+        const price = unitPrice(item, line.size) * line.qty;
+        const prev = before.get(key);
+        const qtyOut = el("output", { class: "roll" });
+        const priceOut = el("span", { class: "cart-line__price money" });
+        roll(qtyOut, line.qty, prev?.qty);
+        setMoney(priceOut, price, prev?.price);
         return el(
           "li",
-          { class: "cart-line" },
+          { class: "cart-line", dataset: { key, qty: line.qty, price } },
           el(
             "div",
             { class: "cart-line__text" },
             el("strong", {}, fullName(item, cat)),
             details ? el("small", {}, details) : null,
-            el("span", { class: "cart-line__price" }, money(unitPrice(item, line.size) * line.qty))
+            priceOut
           ),
           el(
             "div",
@@ -589,7 +672,7 @@
               "aria-label": line.qty === 1 ? t("cart.remove") : "−",
               onclick: () => setQty(key, line.qty - 1),
             }, line.qty === 1 ? "🗑" : "−"),
-            el("output", {}, line.qty),
+            qtyOut,
             el("button", {
               type: "button",
               class: "qty__btn",
@@ -878,21 +961,180 @@
   setInterval(renderStatus, 60 * 1000);
 
   // ---------- Intro animation ----------
-  // Shown at least long enough to play once, removed as soon as the page is ready.
+  // Yellow screen: the hat and moustache (photo 1) pop in, the name plate
+  // crashes in from the right between them, the tassel wiggles, then the
+  // finished logo glides into its place in the header.
   const splash = $("#splash");
-  const started = performance.now();
-  let splashHidden = false;
-  const hideSplash = () => {
-    if (splashHidden) return;
-    splashHidden = true;
-    const wait = Math.max(0, 1600 - (performance.now() - started));
-    setTimeout(() => {
-      splash.classList.add("is-done");
-      document.body.classList.remove("is-loading");
-      setTimeout(() => splash.remove(), 700);
-    }, wait);
-  };
-  if (document.readyState === "complete") hideSplash();
-  else window.addEventListener("load", hideSplash, { once: true });
-  setTimeout(hideSplash, 4000); // never block the page on a slow asset
+  const stage = $("#intro");
+  const part = (n) => $(`.intro__${n}`, stage);
+  const hatEl = part("hat");
+  const tasselEl = part("tassel");
+  const plateEl = part("plate");
+  const moustacheEl = part("moustache");
+  const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+  const pageLoaded = new Promise((r) =>
+    document.readyState === "complete" ? r() : window.addEventListener("load", r, { once: true })
+  );
+
+  // Photo-1 pose of each layer, relative to its final place in the logo.
+  const HAT_START = "translate(-1.35%, 25.9%) scale(1.2048)";
+  const MOUSTACHE_START = "translate(0, -45.8%) scale(1.111)";
+
+  function finishIntro() {
+    if (!splash.isConnected) return;
+    document.body.classList.remove("is-loading");
+    splash.remove();
+  }
+
+  async function playIntro() {
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const images = [hatEl, tasselEl, plateEl, moustacheEl];
+    const ready = Promise.all(images.map((img) => img.decode().catch(() => {})));
+    // Never hold the page back for long if the pictures are slow.
+    const loadedInTime = await Promise.race([ready.then(() => true), wait(2500).then(() => false)]);
+    if (!loadedInTime || reduce || !Element.prototype.animate) {
+      await pageLoaded;
+      splash.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 300, fill: "forwards" }).finished.then(finishIntro);
+      return;
+    }
+
+    const anim = (node, frames, opts) => node.animate(frames, { fill: "both", ...opts }).finished;
+    const spring = "cubic-bezier(.34,1.56,.64,1)";
+
+    // 1. Photo 1 pops in.
+    const pop = (node, base, delay) =>
+      anim(
+        node,
+        [
+          { opacity: 0, transform: `${base} translateY(-6%) scale(0.6)` },
+          { opacity: 1, transform: `${base} translateY(0) scale(1.06)`, offset: 0.7 },
+          { opacity: 1, transform: `${base} scale(1)` },
+        ],
+        { duration: 560, delay, easing: "ease-out" }
+      );
+    pop(hatEl, HAT_START, 0);
+    pop(tasselEl, HAT_START, 0);
+    await pop(moustacheEl, MOUSTACHE_START, 90);
+    await wait(250);
+
+    // 2. The name plate shoots in from the right...
+    const offRight = window.innerWidth;
+    await anim(
+      plateEl,
+      [
+        { opacity: 1, transform: `translateX(${offRight}px) rotate(-8deg) scaleX(1.15)` },
+        { opacity: 1, transform: "translateX(0) rotate(0) scaleX(1)" },
+      ],
+      { duration: 280, easing: "cubic-bezier(.55,0,1,.45)" }
+    );
+
+    // ...and crashes in: hat knocked up, moustache pushed down, plate squashes, screen shakes.
+    const knock = (node, from, lift) =>
+      anim(
+        node,
+        [
+          { opacity: 1, transform: from },
+          { opacity: 1, transform: `translateY(${lift}%) rotate(${lift < 0 ? -7 : 4}deg)`, offset: 0.35 },
+          { opacity: 1, transform: "translateY(0) rotate(0)" },
+        ],
+        { duration: 520, easing: spring }
+      );
+    knock(hatEl, HAT_START, -10);
+    knock(tasselEl, HAT_START, -10);
+    knock(moustacheEl, MOUSTACHE_START, 14);
+    anim(
+      plateEl,
+      [
+        { opacity: 1, transform: "scale(0.88, 1.14)" },
+        { opacity: 1, transform: "scale(1.06, 0.94)", offset: 0.4 },
+        { opacity: 1, transform: "scale(0.98, 1.02)", offset: 0.7 },
+        { opacity: 1, transform: "scale(1)" },
+      ],
+      { duration: 420, easing: "ease-out" }
+    );
+    splash.animate(
+      [
+        { transform: "translate(0, 0)" },
+        { transform: "translate(-14px, 6px)" },
+        { transform: "translate(12px, -5px)" },
+        { transform: "translate(-8px, 3px)" },
+        { transform: "translate(5px, -2px)" },
+        { transform: "translate(0, 0)" },
+      ],
+      { duration: 380, easing: "ease-out" }
+    );
+    sparks();
+    await wait(560);
+
+    // 3. The tassel wiggles and settles.
+    await anim(
+      tasselEl,
+      [
+        { transform: "rotate(0)" },
+        { transform: "rotate(-24deg)", offset: 0.14 },
+        { transform: "rotate(18deg)", offset: 0.32 },
+        { transform: "rotate(-11deg)", offset: 0.5 },
+        { transform: "rotate(7deg)", offset: 0.66 },
+        { transform: "rotate(-3deg)", offset: 0.82 },
+        { transform: "rotate(0)" },
+      ],
+      { duration: 1000, easing: "ease-in-out" }
+    );
+
+    // 4. The finished logo glides into the header.
+    await pageLoaded;
+    const target = $(".brand img").getBoundingClientRect();
+    const box = stage.getBoundingClientRect();
+    // The artwork fills 95.5% × 96.5% of the stage, centred; the stage scales from its top-left corner.
+    const scale = Math.min(target.width / (box.width * 0.955), target.height / (box.height * 0.965));
+    const tx = target.left + target.width / 2 - (box.left + (box.width * 0.5) * scale);
+    const ty = target.top + target.height / 2 - (box.top + (box.height * 0.5) * scale);
+    splash.querySelector(".splash__bg").animate([{ opacity: 1 }, { opacity: 0 }], {
+      duration: 650,
+      delay: 120,
+      easing: "ease-in",
+      fill: "forwards",
+    });
+    await anim(
+      stage,
+      [
+        { transform: "translate(0, 0) scale(1)" },
+        { transform: `translate(${tx * 0.5}px, ${ty * 0.5 - 40}px) scale(${(1 + scale) / 2}) rotate(-6deg)`, offset: 0.55 },
+        { transform: `translate(${tx}px, ${ty}px) scale(${scale})` },
+      ],
+      { duration: 820, easing: "cubic-bezier(.6,0,.25,1)" }
+    );
+    document.body.classList.remove("is-loading"); // header logo fades in under the landed one
+    await anim(stage, [{ opacity: 1 }, { opacity: 0 }], { duration: 220 });
+    finishIntro();
+  }
+
+  // A few black streaks burst out where the plate hits the hat and moustache.
+  function sparks() {
+    const spots = [
+      [20, 46, -150], [35, 45, -110], [65, 45, -70], [80, 46, -30],
+      [18, 79, 150], [40, 80, 110], [60, 80, 70], [82, 79, 30],
+    ];
+    spots.forEach(([x, y, deg]) => {
+      const s = el("span", { class: "intro__spark" });
+      s.style.left = `${x}%`;
+      s.style.top = `${y}%`;
+      stage.append(s);
+      const rad = (deg * Math.PI) / 180;
+      const dist = 60 + Math.random() * 40;
+      s.animate(
+        [
+          { transform: `rotate(${deg}deg) scaleX(0.3)`, opacity: 1 },
+          {
+            transform: `translate(${Math.cos(rad) * dist}px, ${Math.sin(rad) * dist}px) rotate(${deg}deg) scaleX(1.4)`,
+            opacity: 0,
+          },
+        ],
+        { duration: 420, easing: "ease-out", fill: "forwards" }
+      ).finished.then(() => s.remove());
+    });
+  }
+
+  playIntro().catch(finishIntro);
+  setTimeout(finishIntro, 9000); // safety net: never leave the page covered
 })();
