@@ -9,6 +9,9 @@ window.CONFIG = {
   whatsapp: "212634235350",
   instagram: "https://www.instagram.com/al_omda_001/",
   instagramHandle: "@al_omda_001",
+  // Google review link, from Google Business Profile > "Ask for reviews" (e.g. "https://g.page/r/XXXX/review").
+  // The table cards' QR code opens /avis, which forwards here. Empty = a "coming soon" page.
+  googleReviewUrl: "",
   // Full-width hero background photo, e.g. "assets/photos/hero.jpg". Empty = logo artwork.
   heroImage: "",
   address: { fr: "Hay Anassi, Casablanca", ar: "حي أناسي، الدار البيضاء" },
