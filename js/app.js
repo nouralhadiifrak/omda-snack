@@ -837,6 +837,21 @@
       interactive: false,
     }).addTo(map);
     map.on("click", (e) => setGeo(e.latlng.lat, e.latlng.lng));
+    // The map can be created while hidden (cart closed, or delivery restored
+    // from a previous visit), at zero size. Redraw it whenever it gets a size.
+    if ("ResizeObserver" in window) {
+      let wasHidden = true;
+      new ResizeObserver(([entry]) => {
+        const { width, height } = entry.contentRect;
+        if (!width || !height) {
+          wasHidden = true;
+          return;
+        }
+        map.invalidateSize();
+        if (wasHidden) map.setView(geo ? [geo.lat, geo.lng] : [SHOP.lat, SHOP.lng], geo ? 16 : 14, { animate: false });
+        wasHidden = false;
+      }).observe($("#delivery-map"));
+    }
     if (geo) setGeo(geo.lat, geo.lng, { pan: true });
     requestAnimationFrame(() => map.invalidateSize());
   }
