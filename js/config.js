@@ -2,10 +2,11 @@
 window.CONFIG = {
   name: "AL-OMDA",
   nameAr: "العمدة",
-  phone: "0675552211",
-  phoneIntl: "+212675552211",
+  // TEMPORARY test number. Restaurant number to restore: 0675552211 / +212675552211 / 212675552211
+  phone: "0634235350",
+  phoneIntl: "+212634235350",
   // WhatsApp number in international format, digits only (orders are sent here).
-  whatsapp: "212675552211",
+  whatsapp: "212634235350",
   instagram: "https://www.instagram.com/al_omda_001/",
   instagramHandle: "@al_omda_001",
   // Full-width hero background photo, e.g. "assets/photos/hero.jpg". Empty = logo artwork.
