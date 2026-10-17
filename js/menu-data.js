@@ -32,7 +32,7 @@ window.MENU = [
     fr: "Shawarma",
     ar: "شاورما",
     emoji: "🌯",
-    image: "",
+    image: "assets/photos/shawarma.jpg",
     featured: true,
     items: [
       { id: "shw-original", fr: "Shawarma Original", ar: "شاورما أصلية", price: 20 },
@@ -61,7 +61,7 @@ window.MENU = [
     fr: "Tacos",
     ar: "طاكوس",
     emoji: "🫓",
-    image: "",
+    image: "assets/photos/tacos.jpg",
     sauces: true,
     items: [
       { id: "tac-poulet", fr: "Tacos Poulet", ar: "طاكوس دجاج", price: 30 },
@@ -78,7 +78,7 @@ window.MENU = [
     fr: "Tacos Bowls",
     ar: "طاكوس بول",
     emoji: "🥣",
-    image: "",
+    image: "assets/photos/bowls.jpg",
     sauces: true,
     items: [
       { id: "bowl-eco", fr: "Bowl Eco", ar: "بول إيكو", price: 45 },
@@ -90,7 +90,7 @@ window.MENU = [
     fr: "Burgers",
     ar: "برغر",
     emoji: "🍔",
-    image: "",
+    image: "assets/photos/burgers.jpg",
     sauces: true,
     items: [
       { id: "bur-cheese", fr: "Cheese Burger", ar: "تشيز برغر", price: 28 },
@@ -107,7 +107,7 @@ window.MENU = [
     fr: "Barquettes",
     ar: "باركيت",
     emoji: "🍗",
-    image: "",
+    image: "assets/photos/barquette.jpg",
     sauces: true,
     items: [
       { id: "bar-nuggets", fr: "Nuggets", ar: "ناجتس", price: 32 },
@@ -121,7 +121,7 @@ window.MENU = [
     fr: "Bagetto",
     ar: "باجيتو",
     emoji: "🥖",
-    image: "",
+    image: "assets/photos/bagetto.jpg",
     sauces: true,
     items: [
       { id: "bag-dinde", fr: "Dinde fumée", ar: "ديك رومي مدخن", price: 32 },
@@ -138,7 +138,7 @@ window.MENU = [
     fr: "Sandwichs fait maison",
     ar: "ساندويتش الدار",
     emoji: "🥪",
-    image: "",
+    image: "assets/photos/sandwich.jpg",
     sauces: true,
     items: [
       { id: "san-thon", fr: "Thon", ar: "تون", price: 25 },
@@ -154,7 +154,7 @@ window.MENU = [
     fr: "Pizzas",
     ar: "بيتزا",
     emoji: "🍕",
-    image: "",
+    image: "assets/photos/pizza.jpg",
     items: [
       { id: "piz-margherita", fr: "Margherita", ar: "مارغريتا", prices: { M: 25, L: 30 } },
       { id: "piz-charcuterie", fr: "Charcuterie", ar: "شاركوتري", prices: { M: 30, L: 35 } },
@@ -174,7 +174,7 @@ window.MENU = [
     fr: "Calzones",
     ar: "كالزوني",
     emoji: "🥟",
-    image: "",
+    image: "assets/photos/calzone.jpg",
     items: [
       { id: "cal-dinde", fr: "Dinde fumée", ar: "ديك رومي مدخن", price: 30 },
       { id: "cal-thon", fr: "Thon", ar: "تون", price: 30 },
@@ -191,7 +191,7 @@ window.MENU = [
     fr: "Pasticcio",
     ar: "باستيتشيو",
     emoji: "🧀",
-    image: "",
+    image: "assets/photos/pasticcio.jpg",
     items: [
       { id: "pas-charcuterie", fr: "Charcuterie", ar: "شاركوتري", price: 25 },
       { id: "pas-poulet", fr: "Poulet", ar: "دجاج", price: 30 },
@@ -206,7 +206,7 @@ window.MENU = [
     fr: "Mac & Cheese",
     ar: "ماك آند تشيز",
     emoji: "🧀",
-    image: "",
+    image: "assets/photos/mac.jpg",
     items: [
       { id: "mac-dinde", fr: "Dinde fumée", ar: "ديك رومي مدخن", price: 30 },
       { id: "mac-poulet", fr: "Poulet", ar: "دجاج", price: 35 },
@@ -221,7 +221,7 @@ window.MENU = [
     fr: "Pâtes",
     ar: "معكرونة",
     emoji: "🍝",
-    image: "",
+    image: "assets/photos/pates.jpg",
     items: [
       { id: "pat-blanche", fr: "Sauce blanche", ar: "بالصلصة البيضاء", price: 27 },
       { id: "pat-champignons", fr: "Sauce champignons", ar: "بصلصة الفطر", price: 27 },
@@ -239,7 +239,7 @@ window.MENU = [
     fr: "Plats Chicken",
     ar: "أطباق الدجاج",
     emoji: "🍽️",
-    image: "",
+    image: "assets/photos/plat-chicken.jpg",
     items: [
       { id: "plc-champignons", fr: "Sauce champignons", ar: "بصلصة الفطر", price: 43 },
       { id: "plc-blanche", fr: "Sauce blanche", ar: "بالصلصة البيضاء", price: 43 },
@@ -254,7 +254,7 @@ window.MENU = [
     fr: "Brochettes",
     ar: "بروشيت",
     emoji: "🍢",
-    image: "",
+    image: "assets/photos/brochette.jpg",
     sauces: true,
     items: [
       { id: "bro-poulet", fr: "Poulet", ar: "دجاج", price: 45 },
@@ -267,7 +267,7 @@ window.MENU = [
     fr: "Salades",
     ar: "سلطات",
     emoji: "🥗",
-    image: "",
+    image: "assets/photos/salade.jpg",
     items: [
       { id: "sal-nicoise", fr: "Salade niçoise", ar: "سلطة نيسواز", price: 30 },
       { id: "sal-chef", fr: "Salade chef", ar: "سلطة الشيف", price: 40 },
@@ -279,7 +279,7 @@ window.MENU = [
     fr: "Snacks",
     ar: "سناكس",
     emoji: "🍟",
-    image: "",
+    image: "assets/photos/snacks.jpg",
     items: [
       { id: "snk-cheesy", fr: "Cheesy Fries", ar: "فريت بالجبن", price: 15 },
     ],
@@ -290,7 +290,7 @@ window.MENU = [
     fr: "Menu enfant",
     ar: "منيو الأطفال",
     emoji: "🧒",
-    image: "",
+    image: "assets/photos/kids.jpg",
     items: [
       {
         id: "kids-menu",

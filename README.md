@@ -27,7 +27,7 @@ python3 -m http.server 8000
 
 ### Adding food photos
 
-Each category shows a placeholder until it gets a photo. Put the photo in
+Each category has a photo in `assets/photos/` (1200×593 JPEG); a category without one shows its illustration. Put the photo in
 `assets/photos/` and set the category's `image` field in `js/menu-data.js`:
 
 ```js
