@@ -1,17 +1,17 @@
-/* AL-OMDA — colours taken from the printed menu and the logo. */
+/* AL-OMDA palette: #FFBA08 yellow, #D00000 red, #000000 black. */
 :root {
-  --bg: #0b1a14;
-  --bg-2: #10261d;
-  --surface: #153325;
-  --surface-2: #1b4130;
-  --line: rgba(227, 207, 166, 0.14);
-  --beige: #e3cfa6;
-  --text: #f4ecdc;
-  --muted: #b9ab8f;
-  --gold: #f6c21c;
-  --gold-dark: #d9a50b;
-  --red: #b3202e;
-  --red-dark: #8c1622;
+  --bg: #000000;
+  --bg-2: #0b0b0b;
+  --surface: #121212;
+  --surface-2: #1c1c1c;
+  --line: rgba(255, 255, 255, 0.12);
+  --beige: #ffffff;
+  --text: #ffffff;
+  --muted: #a8a8a8;
+  --gold: #ffba08;
+  --gold-dark: #e0a200;
+  --red: #d00000;
+  --red-dark: #a00000;
   --whatsapp: #25d366;
 
   --radius: 18px;
@@ -22,7 +22,7 @@
   --font-body: "Cairo", system-ui, -apple-system, "Segoe UI", sans-serif;
 
   /* Subtle oriental pattern, like the printed menu. */
-  --pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96' viewBox='0 0 96 96'%3E%3Cg fill='none' stroke='%23e3cfa6' stroke-opacity='.05' stroke-width='1.5'%3E%3Cpath d='M48 8c8 14 8 26 0 40-8-14-8-26 0-40zM48 88c8-14 8-26 0-40-8 14-8 26 0 40zM8 48c14-8 26-8 40 0-14 8-26 8-40 0zM88 48c-14-8-26-8-40 0 14 8 26 8 40 0z'/%3E%3Ccircle cx='48' cy='48' r='6'/%3E%3Cpath d='M0 0l14 14M96 0L82 14M0 96l14-14M96 96L82 82'/%3E%3C/g%3E%3C/svg%3E");
+  --pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96' viewBox='0 0 96 96'%3E%3Cg fill='none' stroke='%23ffba08' stroke-opacity='.06' stroke-width='1.5'%3E%3Cpath d='M48 8c8 14 8 26 0 40-8-14-8-26 0-40zM48 88c8-14 8-26 0-40-8 14-8 26 0 40zM8 48c14-8 26-8 40 0-14 8-26 8-40 0zM88 48c-14-8-26-8-40 0 14 8 26 8 40 0z'/%3E%3Ccircle cx='48' cy='48' r='6'/%3E%3Cpath d='M0 0l14 14M96 0L82 14M0 96l14-14M96 96L82 82'/%3E%3C/g%3E%3C/svg%3E");
 }
 
 *,
@@ -128,11 +128,11 @@ textarea {
 }
 .btn--primary {
   background: var(--gold);
-  color: #1b1405;
-  box-shadow: 0 10px 24px -10px rgba(246, 194, 28, 0.6);
+  color: #000000;
+  box-shadow: 0 10px 24px -10px rgba(255, 186, 8, 0.6);
 }
 .btn--primary:hover {
-  background: #ffd23d;
+  background: #ffc933;
 }
 .btn--ghost {
   border-color: var(--line);
@@ -170,7 +170,7 @@ textarea {
   letter-spacing: 0;
 }
 .btn--outline {
-  border-color: rgba(244, 236, 220, 0.3);
+  border-color: rgba(255, 255, 255, 0.3);
   background: rgba(0, 0, 0, 0.3);
   color: #fff;
   backdrop-filter: blur(6px);
@@ -233,7 +233,7 @@ textarea {
   transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 .header.is-scrolled {
-  background: rgba(8, 18, 14, 0.9);
+  background: rgba(0, 0, 0, 0.88);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-bottom-color: var(--line);
@@ -270,7 +270,7 @@ textarea {
   font-size: 0.88rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: rgba(244, 236, 220, 0.78);
+  color: rgba(255, 255, 255, 0.78);
   transition: color 0.2s;
 }
 [dir="rtl"] .nav a {
@@ -291,7 +291,7 @@ textarea {
   height: 40px;
   padding: 0 14px;
   border-radius: 999px;
-  border: 1px solid rgba(244, 236, 220, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.25);
   background: rgba(0, 0, 0, 0.25);
   font-weight: 700;
   cursor: pointer;
@@ -308,7 +308,7 @@ textarea {
   border-radius: 50%;
   border: 0;
   background: var(--gold);
-  color: #1b1405;
+  color: #000000;
   cursor: pointer;
 }
 .cart-btn.bump {
@@ -345,36 +345,36 @@ textarea {
   padding: calc(var(--header-h) + 24px) 0 96px;
   overflow: hidden;
   isolation: isolate;
-  background: #070d0a;
+  background: #000000;
 }
 .hero__bg {
   position: absolute;
   inset: 0;
   z-index: -1;
   background:
-    radial-gradient(ellipse 55% 70% at 78% 50%, rgba(246, 194, 28, 0.16), transparent 70%),
-    radial-gradient(ellipse 80% 90% at 75% 45%, rgba(31, 92, 64, 0.7), transparent 75%),
+    radial-gradient(ellipse 55% 70% at 78% 50%, rgba(255, 186, 8, 0.16), transparent 70%),
+    radial-gradient(ellipse 80% 90% at 75% 45%, rgba(208, 0, 0, 0.35), transparent 75%),
     var(--pattern),
-    #070d0a;
+    #000000;
 }
 [dir="rtl"] .hero__bg {
   background:
-    radial-gradient(ellipse 55% 70% at 22% 50%, rgba(246, 194, 28, 0.16), transparent 70%),
-    radial-gradient(ellipse 80% 90% at 25% 45%, rgba(31, 92, 64, 0.7), transparent 75%),
+    radial-gradient(ellipse 55% 70% at 22% 50%, rgba(255, 186, 8, 0.16), transparent 70%),
+    radial-gradient(ellipse 80% 90% at 25% 45%, rgba(208, 0, 0, 0.35), transparent 75%),
     var(--pattern),
-    #070d0a;
+    #000000;
 }
 /* Readability veil over the photo, darkest behind the text. */
 .hero__bg::after {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, rgba(7, 13, 10, 0.92) 0%, rgba(7, 13, 10, 0.6) 45%, rgba(7, 13, 10, 0.1) 100%),
-    linear-gradient(0deg, rgba(7, 13, 10, 0.9) 0%, transparent 30%);
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.92) 0%, rgba(0, 0, 0, 0.55) 50%, rgba(0, 0, 0, 0.25) 100%),
+    linear-gradient(0deg, rgba(0, 0, 0, 0.9) 0%, transparent 30%);
 }
 [dir="rtl"] .hero__bg::after {
-  background: linear-gradient(270deg, rgba(7, 13, 10, 0.92) 0%, rgba(7, 13, 10, 0.6) 45%, rgba(7, 13, 10, 0.1) 100%),
-    linear-gradient(0deg, rgba(7, 13, 10, 0.9) 0%, transparent 30%);
+  background: linear-gradient(270deg, rgba(0, 0, 0, 0.92) 0%, rgba(0, 0, 0, 0.55) 50%, rgba(0, 0, 0, 0.25) 100%),
+    linear-gradient(0deg, rgba(0, 0, 0, 0.9) 0%, transparent 30%);
 }
 .hero__photo {
   position: absolute;
@@ -387,35 +387,15 @@ textarea {
 .hero.has-photo .hero__video {
   display: none;
 }
-/* The shawarma video, shown as a tilted card on wide screens. */
+/* The shawarma video fills the whole hero, behind the veil and the text. */
 .hero__video {
   position: absolute;
-  top: 50%;
-  inset-inline-end: 8%;
-  height: min(74vh, 620px);
-  width: auto;
-  aspect-ratio: 576 / 1112;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
-  border-radius: 28px;
-  border: 3px solid rgba(246, 194, 28, 0.75);
-  box-shadow: 0 30px 60px -20px rgba(0, 0, 0, 0.7), 0 0 0 10px rgba(246, 194, 28, 0.08);
-  background: #1a120c;
-  transform: translateY(-50%) rotate(-4deg);
-  animation: card-float 7s ease-in-out infinite;
-}
-[dir="rtl"] .hero__video {
-  transform: translateY(-50%) rotate(4deg);
-  animation-name: card-float-rtl;
-}
-@keyframes card-float {
-  50% {
-    transform: translateY(calc(-50% - 12px)) rotate(-2.5deg);
-  }
-}
-@keyframes card-float-rtl {
-  50% {
-    transform: translateY(calc(-50% - 12px)) rotate(2.5deg);
-  }
+  object-position: center 40%;
+  background: #000000;
 }
 @keyframes hero-zoom {
   from {
@@ -474,7 +454,7 @@ textarea {
   margin: 0 0 34px;
   font-size: 1.12rem;
   line-height: 1.75;
-  color: rgba(244, 236, 220, 0.72);
+  color: rgba(255, 255, 255, 0.72);
 }
 .hero__cta {
   display: flex;
@@ -490,7 +470,7 @@ textarea {
   padding: 7px 16px;
   border-radius: 999px;
   background: rgba(0, 0, 0, 0.35);
-  border: 1px solid rgba(244, 236, 220, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.18);
   backdrop-filter: blur(6px);
   font-size: 0.88rem;
 }
@@ -531,16 +511,16 @@ textarea {
   top: 34px;
   z-index: 2;
   background: var(--gold);
-  color: #141008;
+  color: #000000;
   transform: rotate(-2.5deg);
   box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.6);
 }
 .band--dark {
   top: 98px;
-  background: #121512;
-  color: rgba(244, 236, 220, 0.55);
+  background: #0b0b0b;
+  color: rgba(255, 255, 255, 0.55);
   transform: rotate(1.5deg);
-  border-block: 1px solid rgba(244, 236, 220, 0.08);
+  border-block: 1px solid rgba(255, 255, 255, 0.08);
 }
 .band__track {
   display: flex;
@@ -671,7 +651,7 @@ textarea {
   position: sticky;
   top: var(--header-h);
   z-index: 30;
-  background: rgba(11, 26, 20, 0.92);
+  background: rgba(0, 0, 0, 0.92);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--line);
@@ -706,7 +686,7 @@ textarea {
 .chip.is-active {
   background: var(--gold);
   border-color: var(--gold);
-  color: #1b1405;
+  color: #000000;
 }
 
 /* ---------- Menu ---------- */
@@ -727,7 +707,7 @@ textarea {
 .cat--featured {
   grid-column: 1 / -1;
   flex-direction: row;
-  border-color: rgba(246, 194, 28, 0.45);
+  border-color: rgba(255, 186, 8, 0.45);
 }
 .cat--featured .cat__media {
   flex: 0 0 42%;
@@ -753,8 +733,8 @@ textarea {
   place-items: center;
   align-content: center;
   gap: 6px;
-  background: radial-gradient(circle at 50% 40%, rgba(246, 194, 28, 0.18), transparent 60%),
-    var(--pattern), linear-gradient(135deg, #1f5c40, #10261d);
+  background: radial-gradient(circle at 50% 40%, rgba(255, 186, 8, 0.18), transparent 60%),
+    var(--pattern), linear-gradient(135deg, #3a0000, #0b0b0b);
 }
 .cat__emoji {
   font-size: 3.6rem;
@@ -879,7 +859,7 @@ textarea {
   border-radius: 50%;
   border: 0;
   background: var(--gold);
-  color: #1b1405;
+  color: #000000;
   font-size: 1.5rem;
   font-weight: 700;
   line-height: 1;
@@ -887,7 +867,7 @@ textarea {
   transition: transform 0.15s, background-color 0.2s;
 }
 .add-btn:hover {
-  background: #ffd23d;
+  background: #ffc933;
   transform: scale(1.08);
 }
 .add-btn:active {
@@ -995,7 +975,7 @@ textarea {
   border: 0;
   border-radius: 999px;
   background: var(--gold);
-  color: #1b1405;
+  color: #000000;
   font-weight: 800;
   box-shadow: 0 14px 30px -10px rgba(0, 0, 0, 0.7);
   cursor: pointer;
@@ -1006,7 +986,7 @@ textarea {
   min-width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: #1b1405;
+  background: #000000;
   color: var(--gold);
 }
 .cart-bar__total {
@@ -1145,7 +1125,7 @@ textarea {
 .pill input:checked + span {
   background: var(--gold);
   border-color: var(--gold);
-  color: #1b1405;
+  color: #000000;
 }
 .pill input:focus-visible + span {
   outline: 3px solid var(--gold);
@@ -1192,7 +1172,7 @@ textarea {
 }
 .qty__btn:hover:not(:disabled) {
   background: var(--gold);
-  color: #1b1405;
+  color: #000000;
 }
 .qty--small .qty__btn {
   width: 30px;
@@ -1225,7 +1205,7 @@ textarea {
 }
 .toggle__opt input:checked + span {
   border-color: var(--gold);
-  background: rgba(246, 194, 28, 0.1);
+  background: rgba(255, 186, 8, 0.1);
   box-shadow: inset 0 0 0 1px var(--gold);
 }
 .toggle__opt input:focus-visible + span {
@@ -1351,8 +1331,8 @@ textarea {
   margin: 0;
   padding: 10px 12px;
   border-radius: var(--radius-sm);
-  background: rgba(179, 32, 46, 0.2);
-  border: 1px solid rgba(179, 32, 46, 0.5);
+  background: rgba(208, 0, 0, 0.2);
+  border: 1px solid rgba(208, 0, 0, 0.5);
   font-size: 0.88rem;
 }
 
@@ -1467,14 +1447,14 @@ textarea {
 }
 .field .float__input:focus {
   border-color: var(--gold);
-  box-shadow: 0 0 0 4px rgba(246, 194, 28, 0.14);
+  box-shadow: 0 0 0 4px rgba(255, 186, 8, 0.14);
 }
 .float__input::placeholder {
   color: transparent;
   transition: color 0.2s ease;
 }
 .float__input:focus::placeholder {
-  color: rgba(185, 171, 143, 0.6);
+  color: rgba(168, 168, 168, 0.6);
 }
 .float__label {
   position: absolute;
@@ -1535,7 +1515,7 @@ body.is-loading .brand img {
 .splash__bg {
   position: absolute;
   inset: 0;
-  background: #fddf02;
+  background: #ffba08;
 }
 .intro {
   position: relative;
@@ -1575,7 +1555,7 @@ body.is-loading .brand img {
   width: 3%;
   height: 0.9%;
   border-radius: 99px;
-  background: #1a1208;
+  background: #000000;
   pointer-events: none;
 }
 
@@ -1650,21 +1630,9 @@ body.is-loading .brand img {
   .hero:not(.has-photo) .hero__inner {
     padding-top: 30vh;
   }
-  .hero__video,
-  [dir="rtl"] .hero__video {
-    inset: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    border: 0;
-    border-radius: 0;
-    box-shadow: none;
-    transform: none;
-    animation: none;
-  }
   .hero__bg::after,
   [dir="rtl"] .hero__bg::after {
-    background: linear-gradient(180deg, rgba(7, 13, 10, 0.55) 0%, rgba(7, 13, 10, 0.35) 25%, rgba(7, 13, 10, 0.8) 55%, rgba(7, 13, 10, 0.96) 100%);
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0.35) 25%, rgba(0, 0, 0, 0.8) 55%, rgba(0, 0, 0, 0.96) 100%);
   }
   .status {
     gap: 4px 8px;

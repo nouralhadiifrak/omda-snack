@@ -824,9 +824,9 @@
     }).addTo(map);
     L.circle([SHOP.lat, SHOP.lng], {
       radius: CONFIG.delivery.maxKm * 1000,
-      color: "#f6c21c",
+      color: "#ffba08",
       weight: 2,
-      fillColor: "#f6c21c",
+      fillColor: "#ffba08",
       fillOpacity: 0.08,
     }).addTo(map);
     L.marker([SHOP.lat, SHOP.lng], {
