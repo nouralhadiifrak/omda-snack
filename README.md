@@ -5,7 +5,8 @@ It is plain HTML, CSS and JavaScript, with no build step.
 
 - French and Arabic (right-to-left) with a language toggle
 - Full menu with prices in MAD, including pizza sizes (M/L), sauce choice and required options
-- Cart, then pickup or delivery, then the order is sent to the restaurant on WhatsApp
+- Cart, then pickup or delivery, then the order is sent to the restaurant on Telegram
+  (see [docs/telegram-orders.md](docs/telegram-orders.md)) or on WhatsApp
 - Open/closed status (Casablanca time), map, phone and Instagram
 
 ## Run locally
@@ -24,6 +25,7 @@ python3 -m http.server 8000
 | Interface text (French / Arabic) | `js/i18n.js` |
 | Colours and layout | `css/style.css` |
 | Logo | `assets/logo.png` |
+| Order relay to Telegram (Cloudflare Worker) | `worker/order-worker.js` |
 
 ### Adding food photos
 

@@ -195,9 +195,19 @@
       </header>
       <div class="drawer__body">
         <p class="cart-empty" id="cart-empty" data-i18n="cart.empty"></p>
+        <div class="order-sent" id="order-sent" role="status" hidden>
+          <div class="order-sent__check" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="44" height="44"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12.5 4.5 4.5L19 7.5"/></svg>
+          </div>
+          <h4 data-i18n="order.sent">Commande envoyée !</h4>
+          <p id="order-sent-text"></p>
+          <button class="btn btn--primary" type="button" id="order-new" data-i18n="order.newOrder">Nouvelle commande</button>
+        </div>
         <ul class="cart-lines" id="cart-lines"></ul>
 
         <form class="checkout" id="checkout" novalidate>
+          <!-- Left empty by people; bots that fill it are ignored. -->
+          <input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
           <fieldset class="field">
             <legend class="field__label" data-i18n="order.type">Mode de commande</legend>
             <div class="toggle">
@@ -249,10 +259,13 @@
         <div class="sum-row"><span data-i18n="cart.subtotal">Sous-total</span><span id="cart-subtotal"></span></div>
         <div class="sum-row" id="fee-row" hidden><span data-i18n="cart.deliveryFee">Livraison</span><span id="cart-fee"></span></div>
         <div class="total"><span data-i18n="cart.total">Total</span><strong id="cart-total"></strong></div>
+                <p class="send-error" id="send-error" role="alert" data-i18n="order.sendFail" hidden></p>
         <button class="btn btn--whatsapp btn--block" type="submit" form="checkout" id="send">
-          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2c-1.6 0-3.1-.4-4.4-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.4.1-.7.3-.2.3-.9.9-.9 2.2s.9 2.5 1 2.7c.1.2 1.8 2.8 4.4 3.9 1.6.7 2.3.8 3.1.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.1-1.2l-.6-.3Z"/></svg>
-          <span data-i18n="order.send">Envoyer sur WhatsApp</span>
+          <svg class="wa-icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2c-1.6 0-3.1-.4-4.4-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.4.1-.7.3-.2.3-.9.9-.9 2.2s.9 2.5 1 2.7c.1.2 1.8 2.8 4.4 3.9 1.6.7 2.3.8 3.1.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.1-1.2l-.6-.3Z"/></svg>
+          <svg class="send-icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M3.4 20.4 21 12 3.4 3.6l-.1 6.5L15 12 3.3 13.9z"/></svg>
+          <span id="send-label" data-i18n="order.send">Envoyer sur WhatsApp</span>
         </button>
+        <button class="link link--btn send-alt" type="button" id="send-whatsapp" data-i18n="order.viaWhatsapp" hidden>Ou envoyer sur WhatsApp</button>
       </footer>
     </aside>
   </div>

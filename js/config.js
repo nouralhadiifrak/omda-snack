@@ -17,6 +17,9 @@ window.CONFIG = {
   hours: { open: "12:00", close: "23:00" },
   timeZone: "Africa/Casablanca",
   currency: { fr: "DH", ar: "درهم" },
+  // Order relay (Cloudflare Worker → Telegram), see docs/telegram-orders.md.
+  // Empty = orders open WhatsApp instead.
+  orderEndpoint: "",
   // Delivery: flat fee in MAD and maximum straight-line distance from the restaurant.
   delivery: { fee: 10, maxKm: 4 },
 };

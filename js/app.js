@@ -36,10 +36,11 @@
     .map(({ sauce, ...line }) => ({ ...line, sauces: line.sauces || (sauce ? [sauce] : []) }));
 
   // ---------- Helpers ----------
-  const t = (key, vars = {}) =>
-    (I18N[lang][key] ?? I18N.fr[key] ?? key).replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? "");
+  // `lng` defaults to the visitor's language; orders for the restaurant use French.
+  const t = (key, vars = {}, lng = lang) =>
+    (I18N[lng][key] ?? I18N.fr[key] ?? key).replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? "");
   const loc = (obj) => obj[lang] ?? obj.fr;
-  const name = (obj) => (lang === "ar" ? obj.ar : obj.fr);
+  const name = (obj, lng = lang) => (lng === "ar" ? obj.ar : obj.fr);
   const money = (n) => `${n} ${loc(CONFIG.currency)}`;
   const el = (tag, props = {}, ...children) => {
     const node = document.createElement(tag);
@@ -54,21 +55,21 @@
   };
 
   const unitPrice = (item, size) => (item.prices ? item.prices[size] : item.price);
-  const fullName = (item, cat) => {
-    const base = name(item);
-    return cat.prefix ? `${name(cat.prefix)} ${base}` : base;
+  const fullName = (item, cat, lng = lang) => {
+    const base = name(item, lng);
+    return cat.prefix ? `${name(cat.prefix, lng)} ${base}` : base;
   };
   const lineKey = (l) => [l.id, l.size || "", l.option ?? "", [...(l.sauces || [])].sort().join("+")].join("|");
-  const lineDetails = (line) => {
+  const lineDetails = (line, lng = lang) => {
     const { item } = itemIndex.get(line.id);
     const parts = [];
-    if (line.size) parts.push(t("size." + line.size));
-    if (line.option != null && item.options) parts.push(name(item.options[line.option]));
+    if (line.size) parts.push(t("size." + line.size, {}, lng));
+    if (line.option != null && item.options) parts.push(name(item.options[line.option], lng));
     const sauces = (line.sauces || [])
       .map((id) => SAUCES.find((s) => s.id === id))
       .filter(Boolean)
-      .map(name);
-    if (sauces.length) parts.push(`${t("wa.sauce")} ${sauces.join(" + ")}`);
+      .map((s) => name(s, lng));
+    if (sauces.length) parts.push(`${t("wa.sauce", {}, lng)} ${sauces.join(" + ")}`);
     return parts.join(" · ");
   };
   const cartSubtotal = () =>
@@ -474,6 +475,7 @@
 
   // ---------- Cart ----------
   function addToCart(line, origin) {
+    $("#order-sent").hidden = true;
     const key = lineKey(line);
     const existing = cart.find((l) => lineKey(l) === key);
     if (existing) existing.qty += line.qty;
@@ -561,7 +563,7 @@
     $("#cart-bar-count").textContent = count;
     $("#cart-bar-total").textContent = money(cartSubtotal());
     $("#cart-total").textContent = total;
-    $("#cart-empty").hidden = count > 0;
+    $("#cart-empty").hidden = count > 0 || !$("#order-sent").hidden;
     $("#checkout").hidden = count === 0;
     $("#cart-foot").hidden = count === 0;
 
@@ -777,9 +779,9 @@
     );
   });
 
-  form.addEventListener("submit", (e) => {
-    e.preventDefault();
-    if (!cart.length) return;
+  // Checks the form; returns the order data, or null after pointing at the problem.
+  function readCheckout() {
+    if (!cart.length) return null;
     const delivery = isDelivery();
     let firstInvalid = null;
     ["name", "phone", "address"].forEach((f) => {
@@ -794,17 +796,20 @@
     }
     if (firstInvalid) {
       firstInvalid.focus();
-      return;
+      return null;
     }
     if (delivery && !inRange()) {
       renderGeoStatus();
       $("#geo-status").scrollIntoView({ block: "center", behavior: "smooth" });
-      return;
+      return null;
     }
-
     const data = Object.fromEntries(new FormData(form));
     store.set("customer", { name: data.name, phone: data.phone, address: data.address, type: data.type });
+    return { ...data, delivery };
+  }
 
+  function sendWhatsApp(data) {
+    const { delivery } = data;
     const lines = cart.map((line) => {
       const { item, cat } = itemIndex.get(line.id);
       const details = lineDetails(line);
@@ -834,6 +839,89 @@
       .join("\n");
 
     window.open(`https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent(msg)}`, "_blank", "noopener");
+  }
+
+  // Sends the order to the order relay (Telegram), item names in French for the staff.
+  async function sendOnline(data) {
+    const { delivery } = data;
+    const order = {
+      type: delivery ? "delivery" : "pickup",
+      lang,
+      name: data.name,
+      phone: data.phone,
+      address: delivery ? data.address : undefined,
+      location: delivery ? { lat: +geo.lat.toFixed(6), lng: +geo.lng.toFixed(6), km: +geo.km.toFixed(2) } : undefined,
+      notes: data.notes,
+      website: data.website, // honeypot, empty for people
+      items: cart.map((line) => {
+        const { item, cat } = itemIndex.get(line.id);
+        return {
+          name: fullName(item, cat, "fr"),
+          details: lineDetails(line, "fr") || undefined,
+          qty: line.qty,
+          total: unitPrice(item, line.size) * line.qty,
+        };
+      }),
+      subtotal: cartSubtotal(),
+      fee: deliveryFee(),
+      total: cartTotal(),
+    };
+    const res = await fetch(CONFIG.orderEndpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(order),
+    });
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok || !body.ok) throw new Error(body.error || res.status);
+  }
+
+  function showSent(data) {
+    $("#order-sent-text").textContent = t("order.sentText", { name: data.name.trim(), phone: data.phone.trim() });
+    cart = [];
+    saveCart();
+    $("#order-sent").hidden = false;
+    $("#cart-empty").hidden = true;
+  }
+
+  let sending = false;
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (sending) return;
+    const data = readCheckout();
+    if (!data) return;
+    if (!CONFIG.orderEndpoint) {
+      sendWhatsApp(data);
+      return;
+    }
+
+    const btn = $("#send");
+    const label = $("#send-label");
+    const error = $("#send-error");
+    sending = true;
+    btn.disabled = true;
+    error.hidden = true;
+    label.textContent = t("order.sending");
+    try {
+      await sendOnline(data);
+      showSent(data);
+    } catch {
+      error.hidden = false;
+    } finally {
+      sending = false;
+      btn.disabled = false;
+      label.textContent = t("order.sendOnline");
+    }
+  });
+
+  $("#send-whatsapp").addEventListener("click", () => {
+    const data = readCheckout();
+    if (data) sendWhatsApp(data);
+  });
+
+  $("#order-new").addEventListener("click", () => {
+    $("#order-sent").hidden = true;
+    renderCart();
+    closeCart();
   });
 
   // ---------- Language ----------
@@ -867,6 +955,16 @@
   const syncHeader = () => header.classList.toggle("is-scrolled", window.scrollY > 24);
   window.addEventListener("scroll", syncHeader, { passive: true });
   syncHeader();
+
+  // With an order relay configured, the main button sends the order directly
+  // and WhatsApp becomes the fallback.
+  if (CONFIG.orderEndpoint) {
+    const send = $("#send");
+    send.classList.replace("btn--whatsapp", "btn--primary");
+    send.classList.add("is-online");
+    $("#send-label").dataset.i18n = "order.sendOnline";
+    $("#send-whatsapp").hidden = false;
+  }
 
   $("#year").textContent = new Date().getFullYear();
   render();
