@@ -19,7 +19,7 @@ python3 -m http.server 8000
 
 | What | File |
 | --- | --- |
-| Phone, WhatsApp number, hours, address, map location | `js/config.js` |
+| Phone, WhatsApp number, hours, address, map location, delivery fee and range | `js/config.js` |
 | Menu items, prices, categories | `js/menu-data.js` |
 | Interface text (French / Arabic) | `js/i18n.js` |
 | Colours and layout | `css/style.css` |

@@ -25,11 +25,15 @@
   // ---------- State ----------
   let lang = store.get("lang", "fr") === "ar" ? "ar" : "fr";
   let cart = store.get("cart", []);
-  let geo = null;
+  let geo = null; // { lat, lng, km } chosen on the delivery map
 
+  const MAX_SAUCES = 2;
   const itemIndex = new Map();
   MENU.forEach((cat) => cat.items.forEach((item) => itemIndex.set(item.id, { item, cat })));
-  cart = cart.filter((line) => itemIndex.has(line.id));
+  cart = cart
+    .filter((line) => itemIndex.has(line.id))
+    // Carts saved before two sauces were allowed stored a single `sauce`.
+    .map(({ sauce, ...line }) => ({ ...line, sauces: line.sauces || (sauce ? [sauce] : []) }));
 
   // ---------- Helpers ----------
   const t = (key, vars = {}) =>
@@ -54,20 +58,24 @@
     const base = name(item);
     return cat.prefix ? `${name(cat.prefix)} ${base}` : base;
   };
-  const lineKey = (l) => [l.id, l.size || "", l.option ?? "", l.sauce || ""].join("|");
+  const lineKey = (l) => [l.id, l.size || "", l.option ?? "", [...(l.sauces || [])].sort().join("+")].join("|");
   const lineDetails = (line) => {
     const { item } = itemIndex.get(line.id);
     const parts = [];
     if (line.size) parts.push(t("size." + line.size));
     if (line.option != null && item.options) parts.push(name(item.options[line.option]));
-    if (line.sauce) {
-      const sauce = SAUCES.find((s) => s.id === line.sauce);
-      if (sauce) parts.push(`${t("wa.sauce")} ${name(sauce)}`);
-    }
+    const sauces = (line.sauces || [])
+      .map((id) => SAUCES.find((s) => s.id === id))
+      .filter(Boolean)
+      .map(name);
+    if (sauces.length) parts.push(`${t("wa.sauce")} ${sauces.join(" + ")}`);
     return parts.join(" · ");
   };
-  const cartTotal = () =>
+  const cartSubtotal = () =>
     cart.reduce((sum, l) => sum + unitPrice(itemIndex.get(l.id).item, l.size) * l.qty, 0);
+  const isDelivery = () => $("#checkout").elements.type.value === "delivery";
+  const deliveryFee = () => (isDelivery() ? CONFIG.delivery.fee : 0);
+  const cartTotal = () => cartSubtotal() + deliveryFee();
   const cartCount = () => cart.reduce((sum, l) => sum + l.qty, 0);
 
   // ---------- Opening hours ----------
@@ -169,7 +177,7 @@
                   class: "add-btn",
                   type: "button",
                   "aria-label": `${t("menu.add")} ${fullName(item, cat)}`,
-                  onclick: () => onAdd(item, cat),
+                  onclick: (e) => onAdd(item, cat, e.currentTarget),
                 },
                 "+"
               )
@@ -327,9 +335,29 @@
   const modal = $("#item-modal");
   let modalState = null;
 
-  function onAdd(item, cat) {
-    if (item.prices || item.options || cat.sauces) openItemModal(item, cat);
-    else addToCart({ id: item.id, qty: 1 });
+  function onAdd(item, cat, button) {
+    if (item.prices || item.options || cat.sauces) openItemModal(item, cat, button);
+    else addToCart({ id: item.id, qty: 1, sauces: [] }, button);
+  }
+
+  function checkboxGroup(groupName, legend, options) {
+    return el(
+      "fieldset",
+      { class: "field" },
+      el("legend", { class: "field__label" }, legend),
+      el(
+        "div",
+        { class: "pills" },
+        options.map((o) =>
+          el(
+            "label",
+            { class: "pill" },
+            el("input", { type: "checkbox", name: groupName, value: o.value }),
+            el("span", {}, el("i", { class: "pill__swatch", style: `--sauce:${o.swatch}` }), o.label)
+          )
+        )
+      )
+    );
   }
 
   function radioGroup(groupName, legend, options, checkedValue) {
@@ -357,8 +385,8 @@
     );
   }
 
-  function openItemModal(item, cat) {
-    modalState = { item, cat, qty: 1 };
+  function openItemModal(item, cat, button) {
+    modalState = { item, cat, qty: 1, button };
     $("#modal-title").textContent = fullName(item, cat);
     const desc = lang === "ar" ? item.descAr : item.descFr;
     $("#modal-desc").textContent = desc || "";
@@ -390,13 +418,10 @@
     }
     if (cat.sauces) {
       fields.push(
-        radioGroup(
+        checkboxGroup(
           "sauce",
           t("modal.sauce"),
-          [{ value: "", label: t("modal.noSauce") }].concat(
-            SAUCES.map((s) => ({ value: s.id, label: name(s), swatch: s.color }))
-          ),
-          ""
+          SAUCES.map((s) => ({ value: s.id, label: name(s), swatch: s.color }))
         )
       );
     }
@@ -413,13 +438,18 @@
       id: modalState.item.id,
       size: modalState.item.prices ? val("size") : undefined,
       option: modalState.item.options ? +val("option") : undefined,
-      sauce: modalState.cat.sauces ? val("sauce") || undefined : undefined,
+      sauces: $$('input[name="sauce"]:checked', form).map((i) => i.value),
       qty: modalState.qty,
     };
   }
 
   function updateModal() {
     const line = readModal();
+    // At most two sauces: lock the other boxes once two are ticked.
+    const full = line.sauces.length >= MAX_SAUCES;
+    $$('input[name="sauce"]', modal).forEach((box) => {
+      box.disabled = full && !box.checked;
+    });
     $("#modal-qty").textContent = modalState.qty;
     $("#modal-add").textContent = t("modal.add", {
       price: money(unitPrice(modalState.item, line.size) * modalState.qty),
@@ -434,7 +464,7 @@
     })
   );
   modal.addEventListener("close", () => {
-    if (modal.returnValue === "add" && modalState) addToCart(readModal());
+    if (modal.returnValue === "add" && modalState) addToCart(readModal(), modalState.button);
     modalState = null;
   });
   // Close when clicking the backdrop.
@@ -443,7 +473,7 @@
   });
 
   // ---------- Cart ----------
-  function addToCart(line) {
+  function addToCart(line, origin) {
     const key = lineKey(line);
     const existing = cart.find((l) => lineKey(l) === key);
     if (existing) existing.qty += line.qty;
@@ -451,7 +481,54 @@
     saveCart();
     const { item, cat } = itemIndex.get(line.id);
     toast(`${t("cart.added")} · ${fullName(item, cat)}`);
-    bump();
+    flyToCart(origin, cat.emoji);
+  }
+
+  // The dish's icon pops out of the "+" button and flies in an arc to the cart.
+  function flyToCart(origin, emoji) {
+    const target = $("#cart-open");
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!origin || reduce || !origin.isConnected || !Element.prototype.animate) {
+      bump();
+      return;
+    }
+    const from = origin.getBoundingClientRect();
+    const to = target.getBoundingClientRect();
+    const dx = to.left + to.width / 2 - (from.left + from.width / 2);
+    const dy = to.top + to.height / 2 - (from.top + from.height / 2);
+
+    // Outer element moves sideways at a steady pace, inner one rises then
+    // drops: together they trace a curve.
+    const outer = el("div", { class: "fly", "aria-hidden": "true" });
+    const inner = el("span", { class: "fly__icon" }, emoji);
+    outer.append(inner);
+    outer.style.left = `${from.left + from.width / 2}px`;
+    outer.style.top = `${from.top + from.height / 2}px`;
+    document.body.append(outer);
+
+    const duration = 850;
+    const lift = Math.min(160, Math.max(70, Math.abs(dy) * 0.35));
+    inner.animate(
+      [
+        { transform: "translate(-50%, -50%) scale(0.2)", opacity: 0 },
+        { transform: "translate(-50%, -50%) scale(1.5)", opacity: 1, offset: 0.18 },
+        { transform: "translate(-50%, -50%) scale(1.2)", offset: 0.3 },
+        { transform: "translate(-50%, -50%) scale(0.45)", opacity: 0.9 },
+      ],
+      { duration, easing: "ease-out", fill: "forwards" }
+    );
+    outer.animate(
+      [
+        { transform: "translate(0, 0)" },
+        { transform: `translate(${dx * 0.06}px, ${-lift * 0.5}px)`, offset: 0.18 },
+        { transform: `translate(${dx * 0.45}px, ${Math.min(0, dy) - lift}px)`, offset: 0.5 },
+        { transform: `translate(${dx}px, ${dy}px)` },
+      ],
+      { duration, easing: "cubic-bezier(.45,.05,.55,.95)", fill: "forwards" }
+    ).finished.then(() => {
+      outer.remove();
+      bump();
+    });
   }
 
   function setQty(key, qty) {
@@ -470,13 +547,19 @@
   function renderCart() {
     const count = cartCount();
     const total = money(cartTotal());
+    const fee = deliveryFee();
+    $("#cart-subtotal").textContent = money(cartSubtotal());
+    $("#fee-row").hidden = !fee;
+    $("#cart-fee").textContent = money(fee);
+    $('[data-i18n="order.deliveryFee"]').textContent = t("order.deliveryFee", { fee: money(CONFIG.delivery.fee) });
+    $('[data-i18n="order.deliveryHint"]').textContent = t("order.deliveryHint", { max: CONFIG.delivery.maxKm });
     const countEl = $("#cart-count");
     countEl.textContent = count;
     countEl.hidden = count === 0;
     $("#cart-bar").hidden = count === 0;
     document.body.classList.toggle("has-cart", count > 0);
     $("#cart-bar-count").textContent = count;
-    $("#cart-bar-total").textContent = total;
+    $("#cart-bar-total").textContent = money(cartSubtotal());
     $("#cart-total").textContent = total;
     $("#cart-empty").hidden = count > 0;
     $("#checkout").hidden = count === 0;
@@ -568,31 +651,128 @@
   if (saved.type === "delivery") form.elements.type.value = "delivery";
 
   function syncType() {
-    const delivery = form.elements.type.value === "delivery";
-    $(".delivery-only", form).hidden = !delivery;
+    const delivery = isDelivery();
+    $$(".delivery-only", form).forEach((n) => (n.hidden = !delivery));
     form.elements.address.required = delivery;
+    $("#send").disabled = delivery && !!geo && !inRange();
+    renderCart();
+    if (delivery) ensureMap();
   }
-  form.addEventListener("change", syncType);
-  syncType();
+  form.addEventListener("change", (e) => {
+    if (e.target.name === "type") syncType();
+  });
 
   form.addEventListener("input", (e) => e.target.closest(".field")?.classList.remove("has-error"));
 
-  $("#locate").addEventListener("click", (e) => {
-    const btn = e.currentTarget;
-    if (!navigator.geolocation) {
-      btn.textContent = t("order.locateFail");
+  // ---------- Delivery map ----------
+  const SHOP = CONFIG.location;
+  let map = null;
+  let pin = null;
+
+  // Straight-line distance in km (haversine).
+  function distanceKm(a, b) {
+    const rad = (d) => (d * Math.PI) / 180;
+    const dLat = rad(b.lat - a.lat);
+    const dLng = rad(b.lng - a.lng);
+    const h = Math.sin(dLat / 2) ** 2 + Math.cos(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.sin(dLng / 2) ** 2;
+    return 6371 * 2 * Math.asin(Math.sqrt(h));
+  }
+  const formatKm = (km) => km.toFixed(1).replace(".", lang === "fr" ? "," : ".");
+  const inRange = () => geo && geo.km <= CONFIG.delivery.maxKm;
+
+  function renderGeoStatus() {
+    const status = $("#geo-status");
+    if (!geo) {
+      status.hidden = true;
       return;
     }
-    btn.textContent = t("order.locating");
+    const ok = inRange();
+    status.hidden = false;
+    status.classList.toggle("is-error", !ok);
+    status.textContent = t(ok ? "order.inRange" : "order.outOfRange", {
+      km: formatKm(geo.km),
+      max: CONFIG.delivery.maxKm,
+    });
+    $("#geo-field").classList.remove("has-error");
+    $("#send").disabled = isDelivery() && !ok;
+  }
+
+  function setGeo(lat, lng, { pan = false } = {}) {
+    geo = { lat, lng, km: distanceKm(SHOP, { lat, lng }) };
+    if (map) {
+      const ok = inRange();
+      if (!pin) {
+        pin = L.marker([lat, lng], { draggable: true, icon: pinIcon(ok) }).addTo(map);
+        pin.on("dragend", () => {
+          const p = pin.getLatLng();
+          setGeo(p.lat, p.lng);
+        });
+      } else {
+        pin.setLatLng([lat, lng]);
+        pin.setIcon(pinIcon(ok));
+      }
+      if (pan) map.setView([lat, lng], 16);
+    }
+    renderGeoStatus();
+  }
+
+  function pinIcon(ok) {
+    return L.divIcon({
+      className: "",
+      html: `<span class="map-pin${ok ? "" : " is-out"}"></span>`,
+      iconSize: [30, 40],
+      iconAnchor: [15, 38],
+    });
+  }
+
+  function ensureMap() {
+    if (map) {
+      requestAnimationFrame(() => map.invalidateSize());
+      return;
+    }
+    if (!window.L) {
+      $("#delivery-map").hidden = true; // map library unavailable: GPS button still works
+      return;
+    }
+    map = L.map("delivery-map", { zoomControl: true, attributionControl: true }).setView([SHOP.lat, SHOP.lng], 14);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 19,
+      attribution: "© OpenStreetMap",
+    }).addTo(map);
+    L.circle([SHOP.lat, SHOP.lng], {
+      radius: CONFIG.delivery.maxKm * 1000,
+      color: "#f6c21c",
+      weight: 2,
+      fillColor: "#f6c21c",
+      fillOpacity: 0.08,
+    }).addTo(map);
+    L.marker([SHOP.lat, SHOP.lng], {
+      icon: L.icon({ iconUrl: "assets/logo.png", iconSize: [46, 46], iconAnchor: [23, 23] }),
+      keyboard: false,
+      interactive: false,
+    }).addTo(map);
+    map.on("click", (e) => setGeo(e.latlng.lat, e.latlng.lng));
+    if (geo) setGeo(geo.lat, geo.lng, { pan: true });
+    requestAnimationFrame(() => map.invalidateSize());
+  }
+
+  $("#locate").addEventListener("click", () => {
+    const label = $("#locate-label");
+    const fail = () => {
+      label.textContent = t("order.locate");
+      const status = $("#geo-status");
+      status.hidden = false;
+      status.classList.add("is-error");
+      status.textContent = t("order.locateFail");
+    };
+    if (!navigator.geolocation) return fail();
+    label.textContent = t("order.locating");
     navigator.geolocation.getCurrentPosition(
       (pos) => {
-        geo = { lat: pos.coords.latitude.toFixed(6), lng: pos.coords.longitude.toFixed(6) };
-        btn.textContent = t("order.located");
-        btn.dataset.i18n = "order.located";
+        label.textContent = t("order.locate");
+        setGeo(pos.coords.latitude, pos.coords.longitude, { pan: true });
       },
-      () => {
-        btn.textContent = t("order.locateFail");
-      },
+      fail,
       { enableHighAccuracy: true, timeout: 10000 }
     );
   });
@@ -600,6 +780,7 @@
   form.addEventListener("submit", (e) => {
     e.preventDefault();
     if (!cart.length) return;
+    const delivery = isDelivery();
     let firstInvalid = null;
     ["name", "phone", "address"].forEach((f) => {
       const input = form.elements[f];
@@ -607,8 +788,17 @@
       input.closest(".field").classList.toggle("has-error", invalid);
       if (invalid && !firstInvalid) firstInvalid = input;
     });
+    if (delivery && !geo) {
+      $("#geo-field").classList.add("has-error");
+      firstInvalid = firstInvalid || $("#locate");
+    }
     if (firstInvalid) {
       firstInvalid.focus();
+      return;
+    }
+    if (delivery && !inRange()) {
+      renderGeoStatus();
+      $("#geo-status").scrollIntoView({ block: "center", behavior: "smooth" });
       return;
     }
 
@@ -622,19 +812,22 @@
         unitPrice(item, line.size) * line.qty
       )}`;
     });
-    const delivery = data.type === "delivery";
     const msg = [
       t("wa.hello"),
       "",
       ...lines,
       "",
+      delivery ? `${t("wa.subtotal")}: ${money(cartSubtotal())}` : null,
+      delivery ? `${t("wa.deliveryFee")}: ${money(deliveryFee())}` : null,
       `*${t("wa.total")}: ${money(cartTotal())}*`,
       "",
       `${t("wa.type")}: ${t(delivery ? "order.delivery" : "order.pickup")}`,
       `${t("wa.name")}: ${data.name.trim()}`,
       `${t("wa.phone")}: ${data.phone.trim()}`,
       delivery ? `${t("wa.address")}: ${data.address.trim()}` : null,
-      delivery && geo ? `${t("wa.location")}: https://maps.google.com/?q=${geo.lat},${geo.lng}` : null,
+      delivery
+        ? `${t("wa.location")}: https://maps.google.com/?q=${geo.lat.toFixed(6)},${geo.lng.toFixed(6)} (${formatKm(geo.km)} km)`
+        : null,
       data.notes.trim() ? `${t("wa.notes")}: ${data.notes.trim()}` : null,
     ]
       .filter((l) => l !== null)
@@ -658,6 +851,7 @@
     lang = lang === "fr" ? "ar" : "fr";
     store.set("lang", lang);
     render();
+    renderGeoStatus();
   });
 
   // Hero photo (optional): replaces the logo artwork when set in config.js.
@@ -676,9 +870,29 @@
 
   $("#year").textContent = new Date().getFullYear();
   render();
+  syncType();
 
   // Opening the page on a category link (e.g. shared #cat-pizza) lands below the sticky bars.
   const initial = window.location.hash.match(/^#cat-(.+)$/);
   if (initial) requestAnimationFrame(() => scrollToCategory(initial[1]));
   setInterval(renderStatus, 60 * 1000);
+
+  // ---------- Intro animation ----------
+  // Shown at least long enough to play once, removed as soon as the page is ready.
+  const splash = $("#splash");
+  const started = performance.now();
+  let splashHidden = false;
+  const hideSplash = () => {
+    if (splashHidden) return;
+    splashHidden = true;
+    const wait = Math.max(0, 1600 - (performance.now() - started));
+    setTimeout(() => {
+      splash.classList.add("is-done");
+      document.body.classList.remove("is-loading");
+      setTimeout(() => splash.remove(), 700);
+    }, wait);
+  };
+  if (document.readyState === "complete") hideSplash();
+  else window.addEventListener("load", hideSplash, { once: true });
+  setTimeout(hideSplash, 4000); // never block the page on a slow asset
 })();
