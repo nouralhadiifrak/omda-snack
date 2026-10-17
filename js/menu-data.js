@@ -10,6 +10,7 @@
  *   prices           { M: .., L: .. } when the item comes in sizes
  *   options          a required choice (e.g. salad type), list of { fr, ar }
  *   unit             "pc" when the price is per piece
+ *   emoji            icon for this item (otherwise the category's emoji is used)
  * Category fields:
  *   sauces: true     the customer can pick a sauce (sauces au choix)
  *   prefix           added before item names in the cart (e.g. "Pizza" + "Thon")
@@ -306,14 +307,14 @@ window.MENU = [
     image: "",
     compact: true,
     items: [
-      { id: "sup-gratine", fr: "Gratiné", ar: "غراتيني", price: 10 },
-      { id: "sup-fondu", fr: "Fondu", ar: "فوندو", price: 15 },
-      { id: "sup-legumes", fr: "Légumes", ar: "خضر", price: 10 },
-      { id: "sup-sauce", fr: "Sauce", ar: "صلصة", price: 3 },
-      { id: "sup-chicken", fr: "Chicken", ar: "دجاج", price: 7, unit: "pc" },
-      { id: "sup-nugget", fr: "Nugget", ar: "ناجت", price: 4, unit: "pc" },
-      { id: "sup-frites", fr: "Frites", ar: "فريت", price: 5 },
-      { id: "sup-pates", fr: "Pâtes", ar: "معكرونة", price: 15 },
+      { id: "sup-gratine", emoji: "🧀", fr: "Gratiné", ar: "غراتيني", price: 10 },
+      { id: "sup-fondu", emoji: "🫕", fr: "Fondu", ar: "فوندو", price: 15 },
+      { id: "sup-legumes", emoji: "🥬", fr: "Légumes", ar: "خضر", price: 10 },
+      { id: "sup-sauce", emoji: "🥫", fr: "Sauce", ar: "صلصة", price: 3 },
+      { id: "sup-chicken", emoji: "🍗", fr: "Chicken", ar: "دجاج", price: 7, unit: "pc" },
+      { id: "sup-nugget", emoji: "🐔", fr: "Nugget", ar: "ناجت", price: 4, unit: "pc" },
+      { id: "sup-frites", emoji: "🍟", fr: "Frites", ar: "فريت", price: 5 },
+      { id: "sup-pates", emoji: "🍝", fr: "Pâtes", ar: "معكرونة", price: 15 },
     ],
   },
   {
@@ -324,9 +325,9 @@ window.MENU = [
     image: "",
     compact: true,
     items: [
-      { id: "drk-soda", fr: "Soda", ar: "مشروب غازي", price: 7 },
-      { id: "drk-eau", fr: "Eau minérale", ar: "ماء معدني", price: 5 },
-      { id: "drk-jus", fr: "Jus", ar: "عصير", price: 12 },
+      { id: "drk-soda", emoji: "🥤", fr: "Soda", ar: "مشروب غازي", price: 7 },
+      { id: "drk-eau", emoji: "💧", fr: "Eau minérale", ar: "ماء معدني", price: 5 },
+      { id: "drk-jus", emoji: "🧃", fr: "Jus", ar: "عصير", price: 12 },
     ],
   },
 ];

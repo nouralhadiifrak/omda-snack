@@ -167,7 +167,12 @@
               el(
                 "div",
                 { class: "item__text" },
-                el("span", { class: "item__name" }, name(item)),
+                el(
+                  "span",
+                  { class: "item__name" },
+                  item.emoji ? el("span", { class: "item__emoji", "aria-hidden": "true" }, item.emoji) : null,
+                  name(item)
+                ),
                 item.descFr ? el("span", { class: "item__desc" }, lang === "ar" ? item.descAr : item.descFr) : null
               ),
               priceLabel(item),
@@ -450,10 +455,9 @@
     $$('input[name="sauce"]', modal).forEach((box) => {
       box.disabled = full && !box.checked;
     });
-    $("#modal-qty").textContent = modalState.qty;
-    $("#modal-add").textContent = t("modal.add", {
-      price: money(unitPrice(modalState.item, line.size) * modalState.qty),
-    });
+    roll($("#modal-qty"), modalState.qty);
+    $('#item-modal .qty__btn[data-step="-1"]').disabled = modalState.qty <= 1;
+    setMoney($("#modal-price"), unitPrice(modalState.item, line.size) * modalState.qty);
   }
 
   $("#item-form").addEventListener("change", updateModal);
@@ -481,54 +485,124 @@
     saveCart();
     const { item, cat } = itemIndex.get(line.id);
     toast(`${t("cart.added")} · ${fullName(item, cat)}`);
-    flyToCart(origin, cat.emoji);
+    emojiSpree(origin, item.emoji || cat.emoji);
   }
 
-  // The dish's icon pops out of the "+" button and flies in an arc to the cart.
-  function flyToCart(origin, emoji) {
-    const target = $("#cart-open");
+  // Emoji spree: a burst of the dish's emoji sprays out of the "+" button,
+  // spinning and falling under gravity, then the cart bumps.
+  function emojiSpree(origin, emoji) {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (!origin || reduce || !origin.isConnected || !Element.prototype.animate) {
       bump();
       return;
     }
-    const from = origin.getBoundingClientRect();
-    const to = target.getBoundingClientRect();
-    const dx = to.left + to.width / 2 - (from.left + from.width / 2);
-    const dy = to.top + to.height / 2 - (from.top + from.height / 2);
+    const box = origin.getBoundingClientRect();
+    const cx = box.left + box.width / 2;
+    const cy = box.top + box.height / 2;
+    const count = 12;
+    const gravity = 900; // px/s²
 
-    // Outer element moves sideways at a steady pace, inner one rises then
-    // drops: together they trace a curve.
-    const outer = el("div", { class: "fly", "aria-hidden": "true" });
-    const inner = el("span", { class: "fly__icon" }, emoji);
-    outer.append(inner);
-    outer.style.left = `${from.left + from.width / 2}px`;
-    outer.style.top = `${from.top + from.height / 2}px`;
-    document.body.append(outer);
-
-    const duration = 850;
-    const lift = Math.min(160, Math.max(70, Math.abs(dy) * 0.35));
-    inner.animate(
-      [
-        { transform: "translate(-50%, -50%) scale(0.2)", opacity: 0 },
-        { transform: "translate(-50%, -50%) scale(1.5)", opacity: 1, offset: 0.18 },
-        { transform: "translate(-50%, -50%) scale(1.2)", offset: 0.3 },
-        { transform: "translate(-50%, -50%) scale(0.45)", opacity: 0.9 },
-      ],
-      { duration, easing: "ease-out", fill: "forwards" }
+    origin.animate(
+      [{ transform: "scale(1)" }, { transform: "scale(0.82)" }, { transform: "scale(1.18)" }, { transform: "scale(1)" }],
+      { duration: 380, easing: "ease-out" }
     );
-    outer.animate(
-      [
-        { transform: "translate(0, 0)" },
-        { transform: `translate(${dx * 0.06}px, ${-lift * 0.5}px)`, offset: 0.18 },
-        { transform: `translate(${dx * 0.45}px, ${Math.min(0, dy) - lift}px)`, offset: 0.5 },
-        { transform: `translate(${dx}px, ${dy}px)` },
-      ],
-      { duration, easing: "cubic-bezier(.45,.05,.55,.95)", fill: "forwards" }
-    ).finished.then(() => {
-      outer.remove();
-      bump();
+
+    for (let i = 0; i < count; i++) {
+      const node = el("span", { class: "spree", "aria-hidden": "true" }, emoji);
+      node.style.left = `${cx}px`;
+      node.style.top = `${cy}px`;
+      document.body.append(node);
+
+      // Mostly upward, fanned out to both sides.
+      const angle = (-90 + (Math.random() * 2 - 1) * 70) * (Math.PI / 180);
+      const speed = 260 + Math.random() * 260; // px/s
+      const vx = Math.cos(angle) * speed;
+      const vy = Math.sin(angle) * speed;
+      const spin = (Math.random() * 2 - 1) * 540;
+      const size = 0.7 + Math.random() * 0.7;
+      const duration = 900 + Math.random() * 500;
+      const secs = duration / 1000;
+
+      const frames = [];
+      for (let f = 0; f <= 10; f++) {
+        const p = f / 10;
+        const time = secs * p;
+        const x = vx * time;
+        const y = vy * time + 0.5 * gravity * time * time;
+        const grow = p < 0.15 ? 0.3 + (p / 0.15) * 0.7 : 1;
+        frames.push({
+          transform: `translate(calc(-50% + ${x}px), calc(-50% + ${y}px)) rotate(${spin * p}deg) scale(${size * grow})`,
+          opacity: p < 0.7 ? 1 : 1 - (p - 0.7) / 0.3,
+          offset: p,
+        });
+      }
+      node
+        .animate(frames, { duration, easing: "linear", delay: i * 12, fill: "forwards" })
+        .finished.then(() => node.remove());
+    }
+    setTimeout(bump, 260);
+  }
+
+  // Odometer-style number: changed digits slide out and the new ones roll in,
+  // upwards when the number grows and downwards when it shrinks.
+  function roll(node, value, from) {
+    const next = String(value);
+    if (from != null && node.dataset.v == null) setDigits(node, String(from));
+    const prev = node.dataset.v;
+    if (prev === next) return;
+    node.dataset.v = next;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const dir = prev == null || reduce || !Element.prototype.animate ? 0 : Number(next) >= Number(prev) ? 1 : -1;
+    const old = [...node.children].map((c) => c.dataset.ch);
+    const cells = [...next].map((ch, i) => {
+      const before = old[old.length - next.length + i];
+      const cell = el("span", { class: "roll__cell", dataset: { ch } }, el("span", { class: "roll__ch" }, ch));
+      if (dir && before !== ch) {
+        const delay = (next.length - 1 - i) * 40;
+        if (before != null) {
+          const out = el("span", { class: "roll__ch roll__ch--out" }, before);
+          cell.append(out);
+          out
+            .animate(
+              [
+                { transform: "translateY(0)", opacity: 1, filter: "blur(0)" },
+                { transform: `translateY(${-dir * 100}%)`, opacity: 0, filter: "blur(3px)" },
+              ],
+              { duration: 320, delay, easing: "cubic-bezier(.4,0,.2,1)", fill: "forwards" }
+            )
+            .finished.then(() => out.remove());
+        }
+        cell.firstChild.animate(
+          [
+            { transform: `translateY(${dir * 100}%)`, opacity: 0, filter: "blur(3px)" },
+            { transform: "translateY(0)", opacity: 1, filter: "blur(0)" },
+          ],
+          { duration: 520, delay, easing: "cubic-bezier(.34,1.56,.64,1)", fill: "backwards" }
+        );
+      }
+      return cell;
     });
+    node.replaceChildren(...cells);
+  }
+
+  function setDigits(node, text) {
+    node.dataset.v = text;
+    node.replaceChildren(
+      ...[...text].map((ch) => el("span", { class: "roll__cell", dataset: { ch } }, el("span", { class: "roll__ch" }, ch)))
+    );
+  }
+
+  // "65 DH" with a rolling number and a static currency.
+  function setMoney(node, amount, from) {
+    let num = $(".roll", node);
+    let cur = $(".money__cur", node);
+    if (!num) {
+      num = el("span", { class: "roll" });
+      cur = el("span", { class: "money__cur" });
+      node.replaceChildren(num, "\u00a0", cur);
+    }
+    cur.textContent = loc(CONFIG.currency);
+    roll(num, amount, from);
   }
 
   function setQty(key, qty) {
@@ -546,39 +620,48 @@
 
   function renderCart() {
     const count = cartCount();
-    const total = money(cartTotal());
     const fee = deliveryFee();
-    $("#cart-subtotal").textContent = money(cartSubtotal());
+    setMoney($("#cart-subtotal"), cartSubtotal());
     $("#fee-row").hidden = !fee;
-    $("#cart-fee").textContent = money(fee);
+    setMoney($("#cart-fee"), fee);
     $('[data-i18n="order.deliveryFee"]').textContent = t("order.deliveryFee", { fee: money(CONFIG.delivery.fee) });
     $('[data-i18n="order.deliveryHint"]').textContent = t("order.deliveryHint", { max: CONFIG.delivery.maxKm });
     const countEl = $("#cart-count");
-    countEl.textContent = count;
+    roll(countEl, count);
     countEl.hidden = count === 0;
     $("#cart-bar").hidden = count === 0;
     document.body.classList.toggle("has-cart", count > 0);
-    $("#cart-bar-count").textContent = count;
-    $("#cart-bar-total").textContent = money(cartSubtotal());
-    $("#cart-total").textContent = total;
+    roll($("#cart-bar-count"), count);
+    setMoney($("#cart-bar-total"), cartSubtotal());
+    setMoney($("#cart-total"), cartTotal());
     $("#cart-empty").hidden = count > 0;
     $("#checkout").hidden = count === 0;
     $("#cart-foot").hidden = count === 0;
 
+    // Lines are rebuilt on every change; remember the old numbers so they can roll.
+    const before = new Map(
+      $$(".cart-line").map((li) => [li.dataset.key, { qty: li.dataset.qty, price: li.dataset.price }])
+    );
     $("#cart-lines").replaceChildren(
       ...cart.map((line) => {
         const { item, cat } = itemIndex.get(line.id);
         const key = lineKey(line);
         const details = lineDetails(line);
+        const price = unitPrice(item, line.size) * line.qty;
+        const prev = before.get(key);
+        const qtyOut = el("output", { class: "roll" });
+        const priceOut = el("span", { class: "cart-line__price money" });
+        roll(qtyOut, line.qty, prev?.qty);
+        setMoney(priceOut, price, prev?.price);
         return el(
           "li",
-          { class: "cart-line" },
+          { class: "cart-line", dataset: { key, qty: line.qty, price } },
           el(
             "div",
             { class: "cart-line__text" },
             el("strong", {}, fullName(item, cat)),
             details ? el("small", {}, details) : null,
-            el("span", { class: "cart-line__price" }, money(unitPrice(item, line.size) * line.qty))
+            priceOut
           ),
           el(
             "div",
@@ -589,7 +672,7 @@
               "aria-label": line.qty === 1 ? t("cart.remove") : "−",
               onclick: () => setQty(key, line.qty - 1),
             }, line.qty === 1 ? "🗑" : "−"),
-            el("output", {}, line.qty),
+            qtyOut,
             el("button", {
               type: "button",
               class: "qty__btn",

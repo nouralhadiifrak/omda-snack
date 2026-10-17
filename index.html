@@ -161,7 +161,7 @@
   <button class="cart-bar" type="button" id="cart-bar" hidden>
     <span class="cart-bar__count" id="cart-bar-count">0</span>
     <span data-i18n="cart.view">Voir le panier</span>
-    <span class="cart-bar__total" id="cart-bar-total"></span>
+    <span class="cart-bar__total money" id="cart-bar-total"></span>
   </button>
 
   <!-- Item options dialog -->
@@ -175,13 +175,16 @@
       <div id="modal-fields"></div>
       <div class="field">
         <span class="field__label" data-i18n="modal.qty">Quantité</span>
-        <div class="qty">
-          <button type="button" class="qty__btn" data-step="-1" aria-label="−">−</button>
-          <output id="modal-qty">1</output>
-          <button type="button" class="qty__btn" data-step="1" aria-label="+">+</button>
+        <div class="qty qty--stepper">
+          <button type="button" class="qty__btn" data-step="-1" aria-label="−"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path stroke="currentColor" stroke-width="2.6" stroke-linecap="round" d="M5 12h14"/></svg></button>
+          <output class="roll" id="modal-qty"></output>
+          <button type="button" class="qty__btn" data-step="1" aria-label="+"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path stroke="currentColor" stroke-width="2.6" stroke-linecap="round" d="M5 12h14M12 5v14"/></svg></button>
         </div>
       </div>
-      <button class="btn btn--primary btn--block" id="modal-add" value="add"></button>
+      <button class="btn btn--primary btn--block" id="modal-add" value="add">
+        <span data-i18n="modal.addLabel">Ajouter</span> ·
+        <span class="money" id="modal-price"></span>
+      </button>
     </form>
   </dialog>
 
@@ -211,16 +214,20 @@
               </label>
             </div>
           </fieldset>
-          <label class="field">
-            <span class="field__label" data-i18n="order.name">Nom</span>
-            <input name="name" autocomplete="name" required>
+          <div class="field">
+            <label class="float">
+              <input class="float__input" name="name" autocomplete="name" placeholder=" " required>
+              <span class="float__label" data-i18n="order.name">Nom</span>
+            </label>
             <span class="field__error" data-i18n="order.required"></span>
-          </label>
-          <label class="field">
-            <span class="field__label" data-i18n="order.phone">Téléphone</span>
-            <input name="phone" type="tel" autocomplete="tel" inputmode="tel" dir="ltr" required>
+          </div>
+          <div class="field">
+            <label class="float">
+              <input class="float__input" name="phone" type="tel" autocomplete="tel" inputmode="tel" placeholder=" " required>
+              <span class="float__label" data-i18n="order.phone">Téléphone</span>
+            </label>
             <span class="field__error" data-i18n="order.required"></span>
-          </label>
+          </div>
           <div class="field delivery-only" id="geo-field" hidden>
             <span class="field__label" data-i18n="order.mapLabel">Position de livraison</span>
             <p class="hint" data-i18n="order.mapHint"></p>
@@ -233,22 +240,26 @@
             <span class="field__error" data-i18n="order.mapRequired"></span>
           </div>
           <div class="field delivery-only" hidden>
-            <label for="address" class="field__label" data-i18n="order.address">Adresse de livraison</label>
-            <textarea id="address" name="address" rows="2" autocomplete="street-address" data-i18n-ph="order.addressPh"></textarea>
+            <label class="float">
+              <textarea class="float__input" id="address" name="address" rows="2" autocomplete="street-address" data-i18n-ph="order.addressPh"></textarea>
+              <span class="float__label" data-i18n="order.address">Adresse de livraison</span>
+            </label>
             <span class="field__error" data-i18n="order.required"></span>
             <p class="hint" data-i18n="order.deliveryFee"></p>
           </div>
-          <label class="field">
-            <span class="field__label" data-i18n="order.notes">Remarques</span>
-            <textarea name="notes" rows="2" data-i18n-ph="order.notesPh"></textarea>
-          </label>
+          <div class="field">
+            <label class="float">
+              <textarea class="float__input" name="notes" rows="2" data-i18n-ph="order.notesPh"></textarea>
+              <span class="float__label" data-i18n="order.notes">Remarques</span>
+            </label>
+          </div>
         </form>
       </div>
       <footer class="drawer__foot" id="cart-foot">
         <p class="closed-warn" id="closed-warn" data-i18n="order.closedWarn" hidden></p>
-        <div class="sum-row"><span data-i18n="cart.subtotal">Sous-total</span><span id="cart-subtotal"></span></div>
-        <div class="sum-row" id="fee-row" hidden><span data-i18n="cart.deliveryFee">Livraison</span><span id="cart-fee"></span></div>
-        <div class="total"><span data-i18n="cart.total">Total</span><strong id="cart-total"></strong></div>
+        <div class="sum-row"><span data-i18n="cart.subtotal">Sous-total</span><span class="money" id="cart-subtotal"></span></div>
+        <div class="sum-row" id="fee-row" hidden><span data-i18n="cart.deliveryFee">Livraison</span><span class="money" id="cart-fee"></span></div>
+        <div class="total"><span data-i18n="cart.total">Total</span><strong class="money" id="cart-total"></strong></div>
         <button class="btn btn--whatsapp btn--block" type="submit" form="checkout" id="send">
           <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2c-1.6 0-3.1-.4-4.4-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.4.1-.7.3-.2.3-.9.9-.9 2.2s.9 2.5 1 2.7c.1.2 1.8 2.8 4.4 3.9 1.6.7 2.3.8 3.1.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.1-1.2l-.6-.3Z"/></svg>
           <span data-i18n="order.send">Envoyer sur WhatsApp</span>
