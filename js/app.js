@@ -105,9 +105,14 @@
   }
 
   // ---------- Static text ----------
-  // Headings (h1–h6) fade in letter by letter through js/vendor/headings.js;
-  // their text must go through HeadingFX so the animation owns their content.
+  // Text fades in letter by letter through js/vendor/headings.js: every
+  // heading, plus the page's readable text. Left out: the cart and the options
+  // dialog (re-rendered constantly), form fields, and live values (prices,
+  // totals, opening status). Animated text must be changed through
+  // setHeading so the animation keeps owning its content.
   const isHeading = (n) => /^H[1-6]$/.test(n.tagName);
+  const isFx = (n) =>
+    isHeading(n) || (n.matches("[data-i18n], [data-i18n-html], [data-fx]") && !n.closest("#cart, #item-modal, .skip"));
   const escapeHtml = (s) => String(s).replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[c]);
   function setHeading(n, html) {
     if (window.HeadingFX && window.HeadingFX.enabled) window.HeadingFX.set(n, html);
@@ -119,12 +124,12 @@
     document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
     $$("[data-i18n]").forEach((n) => {
       const text = t(n.dataset.i18n);
-      if (isHeading(n)) setHeading(n, escapeHtml(text));
+      if (isFx(n)) setHeading(n, escapeHtml(text));
       else n.textContent = text;
     });
     $$("[data-i18n-html]").forEach((n) => {
       const html = t(n.dataset.i18nHtml);
-      if (isHeading(n)) setHeading(n, html);
+      if (isFx(n)) setHeading(n, html);
       else n.innerHTML = html;
     });
     $$("[data-i18n-ph]").forEach((n) => (n.placeholder = t(n.dataset.i18nPh)));
@@ -188,9 +193,9 @@
                   "span",
                   { class: "item__name" },
                   item.emoji ? el("span", { class: "item__emoji", "aria-hidden": "true" }, item.emoji) : null,
-                  name(item)
+                  el("span", { class: "item__label", "data-fx": "" }, name(item))
                 ),
-                item.descFr ? el("span", { class: "item__desc" }, lang === "ar" ? item.descAr : item.descFr) : null
+                item.descFr ? el("span", { class: "item__desc", "data-fx": "" }, lang === "ar" ? item.descAr : item.descFr) : null
               ),
               priceLabel(item),
               el(
@@ -283,7 +288,13 @@
   // two categories share a row, so keep the current one while it is still there.
   function spyCategories() {
     if (spyTarget !== null) {
-      if (Math.abs(window.scrollY - spyTarget) < 2 || performance.now() > spyDeadline) spyTarget = null;
+      if (Math.abs(window.scrollY - spyTarget) < 2 || performance.now() > spyDeadline) {
+        spyTarget = null;
+        // The bar's own smooth scroll can be cut short by the page's; centre
+        // the active chip again now that the page has arrived.
+        const active = $(".chip.is-active");
+        if (active) setActiveChip(active.dataset.cat);
+      }
       return;
     }
     const line = $("#header").offsetHeight + $(".chips-wrap").offsetHeight + 40;
@@ -328,15 +339,16 @@
           "li",
           { class: "sauce" },
           el("span", { class: "sauce__bowl", style: `--sauce:${s.color}`, "aria-hidden": "true" }),
-          el("span", {}, name(s))
+          el("span", { "data-fx": "" }, name(s))
         )
       )
     );
+    window.HeadingFX?.scan($("#sauce-list"));
   }
 
   function renderInfo() {
     const { lat, lng } = CONFIG.location;
-    $("#info-address").textContent = loc(CONFIG.address);
+    setHeading($("#info-address"), escapeHtml(loc(CONFIG.address)));
     $("#info-directions").href = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
     $("#info-hours").textContent = `${CONFIG.hours.open} – ${CONFIG.hours.close}`;
     const phone = $("#info-phone");

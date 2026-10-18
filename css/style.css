@@ -402,28 +402,6 @@ textarea {
   }
 }
 
-/* Checkered flag accents, as on the reference. */
-.checker {
-  position: absolute;
-  width: 120px;
-  height: 120px;
-  background: conic-gradient(var(--yellow) 25%, transparent 0 50%, var(--yellow) 0 75%, transparent 0) 0 0 / 16px 16px;
-  opacity: 0.55;
-  z-index: 1;
-}
-.checker--top {
-  top: calc(var(--header-h) + 8px);
-  inset-inline-end: 0;
-  -webkit-mask: linear-gradient(225deg, #000 30%, transparent 70%);
-  mask: linear-gradient(225deg, #000 30%, transparent 70%);
-}
-.checker--bottom {
-  bottom: 40px;
-  inset-inline-start: 0;
-  -webkit-mask: linear-gradient(45deg, #000 30%, transparent 70%);
-  mask: linear-gradient(45deg, #000 30%, transparent 70%);
-}
-
 .hero__inner {
   position: relative;
 }
@@ -1642,6 +1620,10 @@ body.is-loading .brand img {
 /* ---------- Heading fade (js/vendor/headings.js) ----------
    The engine lays words out in a wrapping flex row; a <br> in a heading
    becomes a .te-break word, which takes a full row of zero height. */
+/* inline hosts (links, labels, spans in a sentence) keep flowing inline */
+.te-inline > .te-root {
+  display: inline-flex !important;
+}
 .te-root .line-word:has(.te-break) {
   flex-basis: 100%;
   height: 0;
@@ -1833,10 +1815,6 @@ body.is-loading .brand img {
   }
   .hero__cta .btn {
     width: 100%;
-  }
-  .checker {
-    width: 80px;
-    height: 80px;
   }
   .bands {
     height: 150px;
