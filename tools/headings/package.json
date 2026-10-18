@@ -1,0 +1,17 @@
+{
+  "name": "omda-headings",
+  "private": true,
+  "description": "Builds js/vendor/headings.js: the 'Fade Letters' heading animation (spring-text-engine + React) for the static site.",
+  "scripts": {
+    "build": "esbuild headings.jsx --bundle --minify --format=iife --target=es2019 --jsx=automatic --define:process.env.NODE_ENV='\"production\"' --legal-comments=eof --outfile=../../js/vendor/headings.js"
+  },
+  "dependencies": {
+    "spring-text-engine": "0.1.5",
+    "@react-spring/web": "10.1.2",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2"
+  }
+}

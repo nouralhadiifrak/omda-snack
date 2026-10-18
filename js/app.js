@@ -105,11 +105,28 @@
   }
 
   // ---------- Static text ----------
+  // Headings (h1–h6) fade in letter by letter through js/vendor/headings.js;
+  // their text must go through HeadingFX so the animation owns their content.
+  const isHeading = (n) => /^H[1-6]$/.test(n.tagName);
+  const escapeHtml = (s) => String(s).replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[c]);
+  function setHeading(n, html) {
+    if (window.HeadingFX && window.HeadingFX.enabled) window.HeadingFX.set(n, html);
+    else n.innerHTML = html;
+  }
+
   function applyI18n() {
     document.documentElement.lang = lang;
     document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
-    $$("[data-i18n]").forEach((n) => (n.textContent = t(n.dataset.i18n)));
-    $$("[data-i18n-html]").forEach((n) => (n.innerHTML = t(n.dataset.i18nHtml)));
+    $$("[data-i18n]").forEach((n) => {
+      const text = t(n.dataset.i18n);
+      if (isHeading(n)) setHeading(n, escapeHtml(text));
+      else n.textContent = text;
+    });
+    $$("[data-i18n-html]").forEach((n) => {
+      const html = t(n.dataset.i18nHtml);
+      if (isHeading(n)) setHeading(n, html);
+      else n.innerHTML = html;
+    });
     $$("[data-i18n-ph]").forEach((n) => (n.placeholder = t(n.dataset.i18nPh)));
     $$("[data-i18n-aria]").forEach((n) => n.setAttribute("aria-label", t(n.dataset.i18nAria)));
     $("#cart-open").setAttribute("aria-label", t("cart.open"));
@@ -213,6 +230,7 @@
         );
       })
     );
+    window.HeadingFX?.scan(list);
     observeCategories();
   }
 
@@ -392,7 +410,7 @@
 
   function openItemModal(item, cat, button) {
     modalState = { item, cat, qty: 1, button };
-    $("#modal-title").textContent = fullName(item, cat);
+    setHeading($("#modal-title"), escapeHtml(fullName(item, cat)));
     const desc = lang === "ar" ? item.descAr : item.descFr;
     $("#modal-desc").textContent = desc || "";
     $("#modal-desc").hidden = !desc;
@@ -984,6 +1002,48 @@
   if (initial) requestAnimationFrame(() => scrollToCategory(initial[1]));
   setInterval(renderStatus, 60 * 1000);
 
+  // ---------- Moving gradient buttons ----------
+  // Turns the light trail around every visible button (see "Moving gradient
+  // buttons" in style.css). Off for visitors who ask for reduced motion: the
+  // trail then stays still.
+  (function movingButtons() {
+    const SEL = ".btn, .add-btn, .cart-btn, .lang-btn, .cart-bar";
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches || !("IntersectionObserver" in window)) return;
+    const visible = new Set();
+    const io = new IntersectionObserver((entries) =>
+      entries.forEach((e) => (e.isIntersecting ? visible.add(e.target) : visible.delete(e.target)))
+    );
+    const each = (node, fn) => {
+      if (node.nodeType !== 1) return;
+      if (node.matches(SEL)) fn(node);
+      node.querySelectorAll(SEL).forEach(fn);
+    };
+    each(document.body, (b) => io.observe(b));
+    new MutationObserver((muts) =>
+      muts.forEach((m) => {
+        m.addedNodes.forEach((n) => each(n, (b) => io.observe(b)));
+        m.removedNodes.forEach((n) =>
+          each(n, (b) => {
+            io.unobserve(b);
+            visible.delete(b);
+          })
+        );
+      })
+    ).observe(document.body, { childList: true, subtree: true });
+
+    const DEG_PER_SEC = 31.68; // Originkit "step" movement at speed 22: 0.88 × 36°/s
+    let angle = 0;
+    let last = 0;
+    const tick = (now) => {
+      if (last && !document.hidden) angle = (angle + (DEG_PER_SEC * (now - last)) / 1000) % 360;
+      last = now;
+      const value = angle.toFixed(1) + "deg";
+      visible.forEach((b) => b.style.setProperty("--mg-a", value));
+      requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  })();
+
   // ---------- Intro animation ----------
   // Yellow screen: the hat and moustache (photo 1) pop in, the name plate
   // crashes in from the right between them, the tassel wiggles, then the
@@ -1008,6 +1068,9 @@
     if (!splash.isConnected) return;
     document.body.classList.remove("is-loading");
     splash.remove();
+    // The hero headline faded in behind the intro; play it again now it shows.
+    const heroTitle = $(".hero__title");
+    if (heroTitle && window.HeadingFX && window.HeadingFX.enabled) setHeading(heroTitle, t("hero.title"));
     // Start the hero video from its first shot once the page is revealed.
     if (!heroVideo.paused) {
       heroVideo.currentTime = 0;
@@ -1091,24 +1154,25 @@
       { duration: 380, easing: "ease-out" }
     );
     sparks();
-    await wait(560);
 
-    // 3. The tassel swings from its knob and settles.
+    // 3. On the same frame as the crash, the jolt sets the tassel swinging
+    //    from its knob; it settles while the hat and moustache bounce back.
     stage.classList.add("is-wiggling");
     await anim(
       tasselEl,
       [
         { transform: "rotate(0)" },
-        { transform: "rotate(-24deg)", offset: 0.14 },
-        { transform: "rotate(18deg)", offset: 0.32 },
-        { transform: "rotate(-11deg)", offset: 0.5 },
-        { transform: "rotate(7deg)", offset: 0.66 },
+        { transform: "rotate(-26deg)", offset: 0.12 },
+        { transform: "rotate(19deg)", offset: 0.3 },
+        { transform: "rotate(-12deg)", offset: 0.48 },
+        { transform: "rotate(7deg)", offset: 0.65 },
         { transform: "rotate(-3deg)", offset: 0.82 },
         { transform: "rotate(0)" },
       ],
-      { duration: 1000, easing: "ease-in-out" }
+      { duration: 1100, easing: "ease-out" }
     );
     stage.classList.remove("is-wiggling");
+    await wait(200);
 
     // 4. The finished logo glides into the header.
     await pageLoaded;

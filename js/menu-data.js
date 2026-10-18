@@ -288,14 +288,14 @@ window.MENU = [
     id: "kids",
     icon: "assets/icons/kids-menu.png",
     fr: "Menu enfant",
-    ar: "منيو الأطفال",
+    ar: "قائمة الأطفال",
     emoji: "🧒",
     image: "assets/photos/kids.jpg",
     items: [
       {
         id: "kids-menu",
         fr: "Menu enfant",
-        ar: "منيو الأطفال",
+        ar: "قائمة الأطفال",
         price: 35,
         descFr: "Wrap ou burger + boisson + frites",
         descAr: "راب أو برغر + مشروب + فريت",

@@ -137,9 +137,6 @@ textarea {
   color: var(--on-gold);
   box-shadow: 0 10px 24px -10px rgba(255, 186, 8, 0.6);
 }
-.btn--primary:hover {
-  background: #b00000;
-}
 .btn--ghost {
   border-color: var(--line);
   color: var(--beige);
@@ -150,9 +147,6 @@ textarea {
 .btn--whatsapp {
   background: var(--whatsapp);
   color: #06301a;
-}
-.btn--whatsapp:hover {
-  background: #3ae07a;
 }
 .btn--block {
   width: 100%;
@@ -181,19 +175,11 @@ textarea {
   color: #fff;
   backdrop-filter: blur(6px);
 }
-.btn--outline:hover {
-  border-color: var(--yellow);
-  color: var(--yellow);
-}
 .drawer .btn--outline {
   border-color: rgba(0, 0, 0, 0.7);
   background: transparent;
   color: #000000;
   backdrop-filter: none;
-}
-.drawer .btn--outline:hover {
-  border-color: var(--gold);
-  color: var(--gold);
 }
 .btn svg {
   flex: none;
@@ -311,9 +297,6 @@ textarea {
   background: transparent;
   font-weight: 700;
   cursor: pointer;
-}
-.lang-btn:hover {
-  border-color: var(--beige);
 }
 .cart-btn {
   position: relative;
@@ -914,7 +897,6 @@ textarea {
   transition: transform 0.15s, background-color 0.2s;
 }
 .add-btn:hover {
-  background: #b00000;
   transform: scale(1.08);
 }
 .add-btn:active {
@@ -1655,6 +1637,138 @@ body.is-loading .brand img {
 .toast.is-visible {
   opacity: 1;
   transform: translate(-50%, 0);
+}
+
+/* ---------- Heading fade (js/vendor/headings.js) ----------
+   The engine lays words out in a wrapping flex row; a <br> in a heading
+   becomes a .te-break word, which takes a full row of zero height. */
+.te-root .line-word:has(.te-break) {
+  flex-basis: 100%;
+  height: 0;
+  overflow: hidden;
+}
+
+/* ---------- Moving gradient buttons ----------
+   A thin band around each button carries a light trail that circles it
+   (angle --mg-a, advanced by app.js); on hover/focus the fill darkens, the
+   label takes the accent colour and the whole band lights up. Colours come
+   from the --mg-* tokens below, so each button type and theme sets its own. */
+:root {
+  --mg-fill: var(--red);
+  --mg-hover: #8f0000;
+  --mg-text: #ffffff;
+  --mg-hover-text: var(--yellow);
+  --mg-trail: #ff6a00;
+  --mg-head: var(--yellow);
+  --mg-band: rgba(0, 0, 0, 0.18);
+  --mg-w: 2.5px;
+  --mg-ease: cubic-bezier(0.44, 0, 0.56, 1);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --mg-hover: #000000;
+    --mg-band: rgba(255, 255, 255, 0.16);
+  }
+}
+:root[data-theme="dark"] {
+  --mg-hover: #000000;
+  --mg-band: rgba(255, 255, 255, 0.16);
+}
+:root[data-theme="light"] {
+  --mg-hover: #8f0000;
+  --mg-band: rgba(0, 0, 0, 0.18);
+}
+
+.btn,
+.add-btn,
+.lang-btn {
+  position: relative;
+}
+.btn,
+.add-btn,
+.cart-btn,
+.lang-btn,
+.cart-bar {
+  isolation: isolate;
+  border-color: transparent;
+  background: var(--mg-fill);
+  color: var(--mg-text);
+  transition: background-color 0.4s var(--mg-ease), color 0.4s var(--mg-ease), transform 0.15s ease;
+}
+:is(.btn, .add-btn, .cart-btn, .lang-btn, .cart-bar):is(:hover, :focus-visible):not(:disabled) {
+  background: var(--mg-hover);
+  color: var(--mg-hover-text);
+}
+:is(.btn, .add-btn, .cart-btn, .lang-btn, .cart-bar)::before,
+:is(.btn, .add-btn, .cart-btn, .lang-btn, .cart-bar)::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  box-sizing: border-box;
+  padding: var(--mg-w);
+  border-radius: inherit;
+  pointer-events: none;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+}
+/* two comets, each fading from the trail colour into a bright head */
+:is(.btn, .add-btn, .cart-btn, .lang-btn, .cart-bar)::before {
+  background: repeating-conic-gradient(
+      from var(--mg-a, 0deg),
+      transparent 0deg,
+      var(--mg-trail) 99deg,
+      var(--mg-head) 180deg
+    ),
+    var(--mg-band);
+}
+:is(.btn, .add-btn, .cart-btn, .lang-btn, .cart-bar)::after {
+  background: conic-gradient(var(--mg-trail), var(--mg-head), var(--mg-trail), var(--mg-head), var(--mg-trail));
+  opacity: 0;
+  transition: opacity 0.4s var(--mg-ease);
+}
+:is(.btn, .add-btn, .cart-btn, .lang-btn, .cart-bar):is(:hover, :focus-visible):not(:disabled)::after {
+  opacity: 1;
+}
+.add-btn {
+  --mg-w: 2px;
+}
+
+/* per button type */
+.btn--whatsapp {
+  --mg-fill: var(--whatsapp);
+  --mg-hover: #128c4a;
+  --mg-text: #06301a;
+  --mg-hover-text: #ffffff;
+  --mg-trail: #0b6b39;
+  --mg-head: #eaffe9;
+}
+/* on the dark hero */
+.btn--outline {
+  --mg-fill: rgba(0, 0, 0, 0.35);
+  --mg-hover: rgba(0, 0, 0, 0.78);
+  --mg-text: #ffffff;
+  --mg-band: rgba(255, 255, 255, 0.28);
+}
+/* on light panels (cart) */
+.drawer .btn--outline {
+  --mg-fill: #ffffff;
+  --mg-hover: #000000;
+  --mg-text: #000000;
+  --mg-band: rgba(0, 0, 0, 0.22);
+  --mg-trail: #ff6a00;
+  --mg-head: var(--red);
+}
+/* on the yellow header: transparent, so the trail must not be yellow */
+.lang-btn {
+  --mg-fill: transparent;
+  --mg-hover: #000000;
+  --mg-text: #000000;
+  --mg-band: rgba(0, 0, 0, 0.55);
+  --mg-trail: #ff6a00;
+  --mg-head: var(--red);
+  border: 0;
 }
 
 /* ---------- Responsive ---------- */
