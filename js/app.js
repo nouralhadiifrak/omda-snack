@@ -105,14 +105,10 @@
   }
 
   // ---------- Static text ----------
-  // Text fades in letter by letter through js/vendor/headings.js: every
-  // heading, plus the page's readable text. Left out: the cart and the options
-  // dialog (re-rendered constantly), form fields, and live values (prices,
-  // totals, opening status). Animated text must be changed through
-  // setHeading so the animation keeps owning its content.
+  // Headings (h1–h6) fade in letter by letter through js/vendor/headings.js;
+  // their text must go through setHeading so the animation owns their content.
   const isHeading = (n) => /^H[1-6]$/.test(n.tagName);
-  const isFx = (n) =>
-    isHeading(n) || (n.matches("[data-i18n], [data-i18n-html], [data-fx]") && !n.closest("#cart, #item-modal, .skip"));
+  const isFx = isHeading;
   const escapeHtml = (s) => String(s).replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[c]);
   function setHeading(n, html) {
     if (window.HeadingFX && window.HeadingFX.enabled) window.HeadingFX.set(n, html);
@@ -193,9 +189,9 @@
                   "span",
                   { class: "item__name" },
                   item.emoji ? el("span", { class: "item__emoji", "aria-hidden": "true" }, item.emoji) : null,
-                  el("span", { class: "item__label", "data-fx": "" }, name(item))
+                  name(item)
                 ),
-                item.descFr ? el("span", { class: "item__desc", "data-fx": "" }, lang === "ar" ? item.descAr : item.descFr) : null
+                item.descFr ? el("span", { class: "item__desc" }, lang === "ar" ? item.descAr : item.descFr) : null
               ),
               priceLabel(item),
               el(
@@ -339,16 +335,15 @@
           "li",
           { class: "sauce" },
           el("span", { class: "sauce__bowl", style: `--sauce:${s.color}`, "aria-hidden": "true" }),
-          el("span", { "data-fx": "" }, name(s))
+          el("span", {}, name(s))
         )
       )
     );
-    window.HeadingFX?.scan($("#sauce-list"));
   }
 
   function renderInfo() {
     const { lat, lng } = CONFIG.location;
-    setHeading($("#info-address"), escapeHtml(loc(CONFIG.address)));
+    $("#info-address").textContent = loc(CONFIG.address);
     $("#info-directions").href = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
     $("#info-hours").textContent = `${CONFIG.hours.open} – ${CONFIG.hours.close}`;
     const phone = $("#info-phone");

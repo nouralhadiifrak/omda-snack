@@ -1,6 +1,5 @@
 /*
- * "Fade Letters" for the site's text (headings and body copy), driven by
- * spring-text-engine. Bundled with React + @react-spring/web into
+ * "Fade Letters" for the site's headings, driven by spring-text-engine. Bundled with React + @react-spring/web into
  * js/vendor/headings.js (see tools/headings).
  *
  * window.HeadingFX.mount(el)        animate an element's current content
@@ -14,9 +13,9 @@ import TextEngine from "spring-text-engine";
 const roots = new WeakMap();
 let version = 0;
 
-// Slower than the original preset (tension 294 / friction 34): each letter
-// takes about a second to appear.
-const SPRING = { tension: 110, friction: 30 };
+// A little snappier than the original preset (tension 294 / friction 34):
+// each letter settles in about a quarter of a second.
+const SPRING = { tension: 380, friction: 36 };
 const ARABIC = /[\u0600-\u06FF\u0750-\u077F\uFB50-\uFDFF\uFE70-\uFEFF]/;
 
 // Simple inline HTML (text, <em>, <bdi>, <span>, <br>) → React children.
@@ -53,7 +52,7 @@ function render(el, html) {
   const text = toText(html);
   // Arabic letters join to their neighbours; splitting them into separate
   // boxes would break the script, so Arabic text fades word by word instead.
-  // Long text gets a tighter stagger so a paragraph doesn't take ages.
+  // Long headings get a tighter stagger so the whole line lands in well under a second.
   // Latin text on an Arabic page: keep its letters left to right (the flex
   // row would otherwise follow the page direction and spell it backwards),
   // and keep block text aligned to the right like the rest of the page.
@@ -64,10 +63,10 @@ function render(el, html) {
   let motion;
   if (ARABIC.test(text)) {
     const words = text.split(/\s+/).filter(Boolean).length || 1;
-    motion = { wordOut: { opacity: 0 }, wordIn: { opacity: 1 }, wordConfig: SPRING, wordStagger: clamp(2400 / words, 40, 140) };
+    motion = { wordOut: { opacity: 0 }, wordIn: { opacity: 1 }, wordConfig: SPRING, wordStagger: clamp(500 / words, 30, 70) };
   } else {
     const letters = text.replace(/\s/g, "").length || 1;
-    motion = { letterOut: { opacity: 0 }, letterIn: { opacity: 1 }, letterConfig: SPRING, letterStagger: clamp(1800 / letters, 10, 45) };
+    motion = { letterOut: { opacity: 0 }, letterIn: { opacity: 1 }, letterConfig: SPRING, letterStagger: clamp(450 / letters, 8, 18) };
   }
   root.render(
     <TextEngine
