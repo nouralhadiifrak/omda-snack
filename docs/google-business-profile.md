@@ -34,7 +34,7 @@ Go to **<https://business.google.com>** → *Gérer maintenant* / *Manage now*, 
 
 **Additional categories**: Fast-food · Restaurant de hamburgers · Pizzeria · Restaurant de tacos · Sandwicherie
 
-**Hours**: every day, 12:00 – 23:00
+**Hours**: every day, 12:00 – 00:00 (midnight)
 
 **Description** (French, max. 750 characters):
 
@@ -42,7 +42,7 @@ Go to **<https://business.google.com>** → *Gérer maintenant* / *Manage now*, 
 > shawarma grillée à la broche et servie généreusement avec nos sauces maison.
 > Au menu également : tacos, bowls, burgers, pizzas, calzones, pasticcio,
 > mac & cheese, pâtes, brochettes, salades et menu enfant. Sur place, à emporter
-> ou en livraison dans le quartier. Ouvert tous les jours de 12h à 23h.
+> ou en livraison dans le quartier. Ouvert tous les jours de 12h à minuit.
 > Commandez en ligne sur notre site et recevez votre commande sur WhatsApp.
 
 **Attributes** (tick what's true): Sur place · À emporter · Livraison · Paiement en espèces ·
