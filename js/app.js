@@ -361,7 +361,8 @@
     fab.href = CONFIG.instagram;
     fab.setAttribute("aria-label", "Instagram " + CONFIG.instagramHandle);
     const map = $("#map");
-    const src = `https://maps.google.com/maps?q=${lat},${lng}&z=17&hl=${lang}&output=embed`;
+    const q = CONFIG.googleMapsName ? encodeURIComponent(CONFIG.googleMapsName) : `${lat},${lng}`;
+    const src = `https://maps.google.com/maps?q=${q}&ll=${lat},${lng}&z=17&hl=${lang}&output=embed`;
     if (map.src !== src) map.src = src;
   }
 

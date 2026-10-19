@@ -18,6 +18,8 @@ window.CONFIG = {
   location: { lat: 33.592244, lng: -7.5007757 },
   // The Google Maps listing ("Voir la localisation" and "Itinéraire" open it). The CID is read from the review link above.
   googleMapsUrl: "https://maps.google.com/?cid=15859693754594803707",
+  // Name of the Google listing; the embedded map searches it so it shows the listing's own pin.
+  googleMapsName: "AL OMDA FAST FOOD, Casablanca",
   // Same hours every day, 24h format, Casablanca time. A close at or before open means after midnight.
   hours: { open: "12:00", close: "00:00" },
   timeZone: "Africa/Casablanca",
