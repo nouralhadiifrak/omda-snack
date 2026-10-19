@@ -105,11 +105,29 @@
   }
 
   // ---------- Static text ----------
+  // Headings (h1–h6) fade in letter by letter through js/vendor/headings.js;
+  // their text must go through setHeading so the animation owns their content.
+  const isHeading = (n) => /^H[1-6]$/.test(n.tagName);
+  const isFx = isHeading;
+  const escapeHtml = (s) => String(s).replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[c]);
+  function setHeading(n, html) {
+    if (window.HeadingFX && window.HeadingFX.enabled) window.HeadingFX.set(n, html);
+    else n.innerHTML = html;
+  }
+
   function applyI18n() {
     document.documentElement.lang = lang;
     document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
-    $$("[data-i18n]").forEach((n) => (n.textContent = t(n.dataset.i18n)));
-    $$("[data-i18n-html]").forEach((n) => (n.innerHTML = t(n.dataset.i18nHtml)));
+    $$("[data-i18n]").forEach((n) => {
+      const text = t(n.dataset.i18n);
+      if (isFx(n)) setHeading(n, escapeHtml(text));
+      else n.textContent = text;
+    });
+    $$("[data-i18n-html]").forEach((n) => {
+      const html = t(n.dataset.i18nHtml);
+      if (isFx(n)) setHeading(n, html);
+      else n.innerHTML = html;
+    });
     $$("[data-i18n-ph]").forEach((n) => (n.placeholder = t(n.dataset.i18nPh)));
     $$("[data-i18n-aria]").forEach((n) => n.setAttribute("aria-label", t(n.dataset.i18nAria)));
     $("#cart-open").setAttribute("aria-label", t("cart.open"));
@@ -141,7 +159,7 @@
     return el(
       "div",
       { class: "cat__placeholder", "aria-hidden": "true" },
-      el("span", { class: "cat__emoji" }, cat.emoji),
+      cat.icon ? el("img", { class: "cat__icon", src: cat.icon, alt: "", loading: "lazy" }) : el("span", { class: "cat__emoji" }, cat.emoji),
       el("span", { class: "cat__soon" }, t("menu.photoSoon"))
     );
   }
@@ -213,6 +231,7 @@
         );
       })
     );
+    window.HeadingFX?.scan(list);
     observeCategories();
   }
 
@@ -265,7 +284,13 @@
   // two categories share a row, so keep the current one while it is still there.
   function spyCategories() {
     if (spyTarget !== null) {
-      if (Math.abs(window.scrollY - spyTarget) < 2 || performance.now() > spyDeadline) spyTarget = null;
+      if (Math.abs(window.scrollY - spyTarget) < 2 || performance.now() > spyDeadline) {
+        spyTarget = null;
+        // The bar's own smooth scroll can be cut short by the page's; centre
+        // the active chip again now that the page has arrived.
+        const active = $(".chip.is-active");
+        if (active) setActiveChip(active.dataset.cat);
+      }
       return;
     }
     const line = $("#header").offsetHeight + $(".chips-wrap").offsetHeight + 40;
@@ -319,7 +344,10 @@
   function renderInfo() {
     const { lat, lng } = CONFIG.location;
     $("#info-address").textContent = loc(CONFIG.address);
-    $("#info-directions").href = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+    // The listing has its own "Itinéraire" button; directions to bare coordinates get
+    // labelled with whichever business Google finds nearest.
+    $("#info-directions").href =
+      CONFIG.googleMapsUrl || `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
     $("#info-hours").textContent = `${CONFIG.hours.open} – ${CONFIG.hours.close}`;
     const phone = $("#info-phone");
     phone.href = "tel:" + CONFIG.phoneIntl;
@@ -327,12 +355,14 @@
     const ig = $("#info-instagram");
     ig.href = CONFIG.instagram;
     ig.textContent = "Instagram · " + CONFIG.instagramHandle;
-    $("#hero-location").href = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+    $("#hero-location").href =
+      CONFIG.googleMapsUrl || `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
     const fab = $("#ig-fab");
     fab.href = CONFIG.instagram;
     fab.setAttribute("aria-label", "Instagram " + CONFIG.instagramHandle);
     const map = $("#map");
-    const src = `https://maps.google.com/maps?q=${lat},${lng}&z=17&hl=${lang}&output=embed`;
+    const q = CONFIG.googleMapsName ? encodeURIComponent(CONFIG.googleMapsName) : `${lat},${lng}`;
+    const src = `https://maps.google.com/maps?q=${q}&ll=${lat},${lng}&z=17&hl=${lang}&output=embed`;
     if (map.src !== src) map.src = src;
   }
 
@@ -392,7 +422,7 @@
 
   function openItemModal(item, cat, button) {
     modalState = { item, cat, qty: 1, button };
-    $("#modal-title").textContent = fullName(item, cat);
+    setHeading($("#modal-title"), escapeHtml(fullName(item, cat)));
     const desc = lang === "ar" ? item.descAr : item.descFr;
     $("#modal-desc").textContent = desc || "";
     $("#modal-desc").hidden = !desc;
@@ -485,12 +515,12 @@
     saveCart();
     const { item, cat } = itemIndex.get(line.id);
     toast(`${t("cart.added")} · ${fullName(item, cat)}`);
-    emojiSpree(origin, item.emoji || cat.emoji);
+    emojiSpree(origin, item.emoji ? { emoji: item.emoji } : cat.icon ? { src: cat.icon } : { emoji: cat.emoji });
   }
 
-  // Emoji spree: a burst of the dish's emoji sprays out of the "+" button,
+  // Emoji spree: a burst of the dish's emoji (or illustration) sprays out of the "+" button,
   // spinning and falling under gravity, then the cart bumps.
-  function emojiSpree(origin, emoji) {
+  function emojiSpree(origin, { emoji, src }) {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (!origin || reduce || !origin.isConnected || !Element.prototype.animate) {
       bump();
@@ -508,7 +538,9 @@
     );
 
     for (let i = 0; i < count; i++) {
-      const node = el("span", { class: "spree", "aria-hidden": "true" }, emoji);
+      const node = src
+        ? el("img", { class: "spree spree--img", src, alt: "", "aria-hidden": "true" })
+        : el("span", { class: "spree", "aria-hidden": "true" }, emoji);
       node.style.left = `${cx}px`;
       node.style.top = `${cy}px`;
       document.body.append(node);
@@ -824,9 +856,9 @@
     }).addTo(map);
     L.circle([SHOP.lat, SHOP.lng], {
       radius: CONFIG.delivery.maxKm * 1000,
-      color: "#f6c21c",
+      color: "#d00000",
       weight: 2,
-      fillColor: "#f6c21c",
+      fillColor: "#d00000",
       fillOpacity: 0.08,
     }).addTo(map);
     L.marker([SHOP.lat, SHOP.lng], {
@@ -835,6 +867,21 @@
       interactive: false,
     }).addTo(map);
     map.on("click", (e) => setGeo(e.latlng.lat, e.latlng.lng));
+    // The map can be created while hidden (cart closed, or delivery restored
+    // from a previous visit), at zero size. Redraw it whenever it gets a size.
+    if ("ResizeObserver" in window) {
+      let wasHidden = true;
+      new ResizeObserver(([entry]) => {
+        const { width, height } = entry.contentRect;
+        if (!width || !height) {
+          wasHidden = true;
+          return;
+        }
+        map.invalidateSize();
+        if (wasHidden) map.setView(geo ? [geo.lat, geo.lng] : [SHOP.lat, SHOP.lng], geo ? 16 : 14, { animate: false });
+        wasHidden = false;
+      }).observe($("#delivery-map"));
+    }
     if (geo) setGeo(geo.lat, geo.lng, { pan: true });
     requestAnimationFrame(() => map.invalidateSize());
   }
@@ -937,7 +984,14 @@
     renderGeoStatus();
   });
 
-  // Hero photo (optional): replaces the logo artwork when set in config.js.
+  // Hero video: stays on its first frame for visitors who ask for less motion.
+  const heroVideo = $("#hero-video");
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    heroVideo.removeAttribute("autoplay");
+    heroVideo.pause();
+  }
+
+  // Hero photo (optional): replaces the video when set in config.js.
   if (CONFIG.heroImage) {
     const photo = $("#hero-photo");
     photo.src = CONFIG.heroImage;
@@ -960,6 +1014,48 @@
   if (initial) requestAnimationFrame(() => scrollToCategory(initial[1]));
   setInterval(renderStatus, 60 * 1000);
 
+  // ---------- Moving gradient buttons ----------
+  // Turns the light trail around every visible button (see "Moving gradient
+  // buttons" in style.css). Off for visitors who ask for reduced motion: the
+  // trail then stays still.
+  (function movingButtons() {
+    const SEL = ".btn, .add-btn, .cart-btn, .lang-btn, .cart-bar";
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches || !("IntersectionObserver" in window)) return;
+    const visible = new Set();
+    const io = new IntersectionObserver((entries) =>
+      entries.forEach((e) => (e.isIntersecting ? visible.add(e.target) : visible.delete(e.target)))
+    );
+    const each = (node, fn) => {
+      if (node.nodeType !== 1) return;
+      if (node.matches(SEL)) fn(node);
+      node.querySelectorAll(SEL).forEach(fn);
+    };
+    each(document.body, (b) => io.observe(b));
+    new MutationObserver((muts) =>
+      muts.forEach((m) => {
+        m.addedNodes.forEach((n) => each(n, (b) => io.observe(b)));
+        m.removedNodes.forEach((n) =>
+          each(n, (b) => {
+            io.unobserve(b);
+            visible.delete(b);
+          })
+        );
+      })
+    ).observe(document.body, { childList: true, subtree: true });
+
+    const DEG_PER_SEC = 31.68; // Originkit "step" movement at speed 22: 0.88 × 36°/s
+    let angle = 0;
+    let last = 0;
+    const tick = (now) => {
+      if (last && !document.hidden) angle = (angle + (DEG_PER_SEC * (now - last)) / 1000) % 360;
+      last = now;
+      const value = angle.toFixed(1) + "deg";
+      visible.forEach((b) => b.style.setProperty("--mg-a", value));
+      requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  })();
+
   // ---------- Intro animation ----------
   // Yellow screen: the hat and moustache (photo 1) pop in, the name plate
   // crashes in from the right between them, the tassel wiggles, then the
@@ -967,7 +1063,7 @@
   const splash = $("#splash");
   const stage = $("#intro");
   const part = (n) => $(`.intro__${n}`, stage);
-  const hatEl = part("hat");
+  const hatEl = part("hatgroup");
   const tasselEl = part("tassel");
   const plateEl = part("plate");
   const moustacheEl = part("moustache");
@@ -984,11 +1080,19 @@
     if (!splash.isConnected) return;
     document.body.classList.remove("is-loading");
     splash.remove();
+    // The hero headline faded in behind the intro; play it again now it shows.
+    const heroTitle = $(".hero__title");
+    if (heroTitle && window.HeadingFX && window.HeadingFX.enabled) setHeading(heroTitle, t("hero.title"));
+    // Start the hero video from its first shot once the page is revealed.
+    if (!heroVideo.paused) {
+      heroVideo.currentTime = 0;
+      heroVideo.play().catch(() => {});
+    }
   }
 
   async function playIntro() {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const images = [hatEl, tasselEl, plateEl, moustacheEl];
+    const images = $$("img", stage);
     const ready = Promise.all(images.map((img) => img.decode().catch(() => {})));
     // Never hold the page back for long if the pictures are slow.
     const loadedInTime = await Promise.race([ready.then(() => true), wait(2500).then(() => false)]);
@@ -1013,7 +1117,6 @@
         { duration: 560, delay, easing: "ease-out" }
       );
     pop(hatEl, HAT_START, 0);
-    pop(tasselEl, HAT_START, 0);
     await pop(moustacheEl, MOUSTACHE_START, 90);
     await wait(250);
 
@@ -1040,7 +1143,6 @@
         { duration: 520, easing: spring }
       );
     knock(hatEl, HAT_START, -10);
-    knock(tasselEl, HAT_START, -10);
     knock(moustacheEl, MOUSTACHE_START, 14);
     anim(
       plateEl,
@@ -1064,22 +1166,25 @@
       { duration: 380, easing: "ease-out" }
     );
     sparks();
-    await wait(560);
 
-    // 3. The tassel wiggles and settles.
+    // 3. On the same frame as the crash, the jolt sets the tassel swinging
+    //    from its knob; it settles while the hat and moustache bounce back.
+    stage.classList.add("is-wiggling");
     await anim(
       tasselEl,
       [
         { transform: "rotate(0)" },
-        { transform: "rotate(-24deg)", offset: 0.14 },
-        { transform: "rotate(18deg)", offset: 0.32 },
-        { transform: "rotate(-11deg)", offset: 0.5 },
-        { transform: "rotate(7deg)", offset: 0.66 },
+        { transform: "rotate(-26deg)", offset: 0.12 },
+        { transform: "rotate(19deg)", offset: 0.3 },
+        { transform: "rotate(-12deg)", offset: 0.48 },
+        { transform: "rotate(7deg)", offset: 0.65 },
         { transform: "rotate(-3deg)", offset: 0.82 },
         { transform: "rotate(0)" },
       ],
-      { duration: 1000, easing: "ease-in-out" }
+      { duration: 1100, easing: "ease-out" }
     );
+    stage.classList.remove("is-wiggling");
+    await wait(200);
 
     // 4. The finished logo glides into the header.
     await pageLoaded;

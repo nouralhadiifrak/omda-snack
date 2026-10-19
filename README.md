@@ -27,7 +27,7 @@ python3 -m http.server 8000
 
 ### Adding food photos
 
-Each category shows a placeholder until it gets a photo. Put the photo in
+Each category has a photo in `assets/photos/` (1200×593 JPEG); a category without one shows its illustration. Put the photo in
 `assets/photos/` and set the category's `image` field in `js/menu-data.js`:
 
 ```js
@@ -50,7 +50,9 @@ heroImage: "assets/photos/hero.jpg",
 
 Until then, the logo is shown in its place.
 
-## Publishing on GitHub Pages
+## Hosting
 
-In the repository settings, open **Pages** and deploy from the branch that holds the site, at the `/` (root) folder.
-A custom domain can be added there later.
+The site is deployed on Vercel from this repository and served at https://al-omda.ma
+(also https://omda-snack.vercel.app, which the printed review cards use).
+The domain is registered at Cap Connect; its DNS points to Vercel
+(see the project's **Settings → Domains** in Vercel for the records).
