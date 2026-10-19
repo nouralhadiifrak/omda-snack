@@ -344,7 +344,10 @@
   function renderInfo() {
     const { lat, lng } = CONFIG.location;
     $("#info-address").textContent = loc(CONFIG.address);
-    $("#info-directions").href = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+    // The listing has its own "Itinéraire" button; directions to bare coordinates get
+    // labelled with whichever business Google finds nearest.
+    $("#info-directions").href =
+      CONFIG.googleMapsUrl || `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
     $("#info-hours").textContent = `${CONFIG.hours.open} – ${CONFIG.hours.close}`;
     const phone = $("#info-phone");
     phone.href = "tel:" + CONFIG.phoneIntl;
