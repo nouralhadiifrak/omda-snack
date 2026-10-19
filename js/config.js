@@ -16,6 +16,8 @@ window.CONFIG = {
   heroImage: "",
   address: { fr: "Hay Anassi, Casablanca", ar: "حي أناسي، الدار البيضاء" },
   location: { lat: 33.592244, lng: -7.5007757 },
+  // The Google Maps listing ("Voir la localisation" opens it). The CID is read from the review link above.
+  googleMapsUrl: "https://maps.google.com/?cid=15859693754594803707",
   // Same hours every day, 24h format, Casablanca time. A close at or before open means after midnight.
   hours: { open: "12:00", close: "00:00" },
   timeZone: "Africa/Casablanca",

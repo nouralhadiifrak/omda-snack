@@ -352,7 +352,8 @@
     const ig = $("#info-instagram");
     ig.href = CONFIG.instagram;
     ig.textContent = "Instagram · " + CONFIG.instagramHandle;
-    $("#hero-location").href = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+    $("#hero-location").href =
+      CONFIG.googleMapsUrl || `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
     const fab = $("#ig-fab");
     fab.href = CONFIG.instagram;
     fab.setAttribute("aria-label", "Instagram " + CONFIG.instagramHandle);
