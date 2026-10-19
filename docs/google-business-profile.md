@@ -28,7 +28,7 @@ Go to **<https://business.google.com>** → *Gérer maintenant* / *Manage now*, 
 | Location | Street address, then move the pin onto the shop (coordinates: 33.592244, -7.500776) |
 | Do you also deliver? | **Yes**: add the delivery area *Hay Anassi* and nearby neighbourhoods (about 4 km) |
 | Phone | 06 75 55 22 11 |
-| Website | https://omda-snack.vercel.app (change later if you buy a domain) |
+| Website | https://al-omda.ma |
 
 ## 3. Details (after creation, in *Modifier le profil*)
 
@@ -48,9 +48,9 @@ Go to **<https://business.google.com>** → *Gérer maintenant* / *Manage now*, 
 **Attributes** (tick what's true): Sur place · À emporter · Livraison · Paiement en espèces ·
 Convient aux enfants · Repas rapide · Places assises
 
-**Menu link**: https://omda-snack.vercel.app/#menu
+**Menu link**: https://al-omda.ma/#menu
 
-**Order link** ("Commander en ligne"): https://omda-snack.vercel.app/#menu
+**Order link** ("Commander en ligne"): https://al-omda.ma/#menu
 
 **Social profile**: Instagram https://www.instagram.com/al_omda_001/
 
@@ -81,8 +81,9 @@ The table cards are already printed with a QR code pointing to
 `https://omda-snack.vercel.app/avis/`. That page forwards to this link, so **no
 reprint is needed**. Until the link is set, the page shows a "coming soon" message.
 
-> ⚠️ The QR code depends on the website address. If the site moves to a new domain
-> later, keep the old Vercel address working (Vercel keeps it by default), or
+> ⚠️ The QR code depends on the website address. The site now lives at
+> https://al-omda.ma, but the printed cards still use the Vercel address: keep
+> omda-snack.vercel.app attached to the project (Vercel keeps it by default), or
 > reprint the cards.
 
 ## 6. After launch
