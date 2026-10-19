@@ -15,7 +15,7 @@ window.CONFIG = {
   // Full-width hero background photo, e.g. "assets/photos/hero.jpg". Empty = logo artwork.
   heroImage: "",
   address: { fr: "Hay Anassi, Casablanca", ar: "حي أناسي، الدار البيضاء" },
-  location: { lat: 33.592244, lng: -7.5007757 },
+  location: { lat: 33.592304, lng: -7.500786 },
   // The Google Maps listing ("Voir la localisation" and "Itinéraire" open it). The CID is read from the review link above.
   googleMapsUrl: "https://maps.google.com/?cid=15859693754594803707",
   // Name of the Google listing; the embedded map searches it so it shows the listing's own pin.

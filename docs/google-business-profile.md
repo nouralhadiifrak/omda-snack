@@ -25,7 +25,7 @@ Go to **<https://business.google.com>** → *Gérer maintenant* / *Manage now*, 
 | Business name | **AL-OMDA** (or **Al Omda – العمدة**, exactly as on the sign; don't add keywords, Google suspends profiles for that) |
 | Business type | Physical location that customers visit (*Établissement physique*) |
 | Primary category | **Restaurant de shawarmas** (*Shawarma restaurant*) |
-| Location | Street address, then move the pin onto the shop (coordinates: 33.592244, -7.500776) |
+| Location | Street address, then move the pin onto the shop (coordinates: 33.592304, -7.500786) |
 | Do you also deliver? | **Yes**: add the delivery area *Hay Anassi* and nearby neighbourhoods (about 4 km) |
 | Phone | 06 75 55 22 11 |
 | Website | https://al-omda.ma |
