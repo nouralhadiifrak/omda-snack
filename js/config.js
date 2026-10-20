@@ -2,11 +2,10 @@
 window.CONFIG = {
   name: "AL-OMDA",
   nameAr: "العمدة",
-  // TEMPORARY test number. Restaurant number to restore: 0675552211 / +212675552211 / 212675552211
-  phone: "0634235350",
-  phoneIntl: "+212634235350",
+  phone: "0675552211",
+  phoneIntl: "+212675552211",
   // WhatsApp number in international format, digits only (orders are sent here).
-  whatsapp: "212634235350",
+  whatsapp: "212675552211",
   instagram: "https://www.instagram.com/al_omda_001/",
   instagramHandle: "@al_omda_001",
   // Google review link, from Google Business Profile > "Ask for reviews" (e.g. "https://g.page/r/XXXX/review").

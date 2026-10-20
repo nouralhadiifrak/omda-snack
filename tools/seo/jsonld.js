@@ -18,8 +18,6 @@ for (const f of ["js/config.js", "js/menu-data.js"]) {
 const { CONFIG, MENU } = ctx.window;
 
 const SITE = "https://al-omda.ma/";
-// The number on the Google listing. CONFIG.phone may temporarily be a test number.
-const TELEPHONE = "+212675552211";
 
 const offer = (price, name) => ({
   "@type": "Offer",
@@ -40,7 +38,7 @@ const data = {
   url: SITE,
   logo: SITE + "assets/logo.png",
   image: [SITE + "assets/photos/shawarma.jpg", SITE + "assets/photos/tacos.jpg", SITE + "assets/photos/burgers.jpg"],
-  telephone: TELEPHONE,
+  telephone: CONFIG.phoneIntl,
   priceRange: `${Math.min(...prices)}–${Math.max(...prices)} MAD`,
   servesCuisine: ["Shawarma", "Fast-food", "Tacos", "Burgers", "Pizza"],
   acceptsReservations: false,
