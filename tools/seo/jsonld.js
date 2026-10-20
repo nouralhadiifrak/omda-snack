@@ -46,7 +46,7 @@ const data = {
   acceptsReservations: false,
   address: {
     "@type": "PostalAddress",
-    streetAddress: "Hay Anassi",
+    streetAddress: "Anassi",
     addressLocality: "Casablanca",
     addressRegion: "Casablanca-Settat",
     addressCountry: "MA",
