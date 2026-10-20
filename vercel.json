@@ -1,9 +1,9 @@
 {
   "redirects": [
     {
-      "source": "/:path*",
+      "source": "/(.*)",
       "has": [{ "type": "host", "value": "omda-snack.vercel.app" }],
-      "destination": "https://al-omda.ma/:path*",
+      "destination": "https://al-omda.ma/$1",
       "permanent": true
     }
   ]
