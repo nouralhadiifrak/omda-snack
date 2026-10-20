@@ -82,9 +82,9 @@ The table cards are already printed with a QR code pointing to
 reprint is needed**. Until the link is set, the page shows a "coming soon" message.
 
 > ⚠️ The QR code depends on the website address. The site now lives at
-> https://al-omda.ma, but the printed cards still use the Vercel address: keep
-> omda-snack.vercel.app attached to the project (Vercel keeps it by default), or
-> reprint the cards.
+> https://al-omda.ma, but the printed cards still use the Vercel address, which
+> redirects to it (`vercel.json`): keep omda-snack.vercel.app attached to the
+> project (Vercel keeps it by default), or reprint the cards.
 
 ## 6. After launch
 

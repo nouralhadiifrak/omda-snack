@@ -65,6 +65,7 @@ Until then, the logo is shown in its place.
 ## Hosting
 
 The site is deployed on Vercel from this repository and served at https://al-omda.ma
-(also https://omda-snack.vercel.app, which the printed review cards use).
+(https://omda-snack.vercel.app redirects there, see `vercel.json`; the printed review cards
+still use it, so keep it attached to the project).
 The domain is registered at Cap Connect; its DNS points to Vercel
 (see the project's **Settings → Domains** in Vercel for the records).
