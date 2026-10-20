@@ -25,6 +25,18 @@ python3 -m http.server 8000
 | Colours and layout | `css/style.css` |
 | Logo | `assets/logo.png` |
 
+### Search engines (SEO)
+
+`index.html` carries the restaurant's structured data (schema.org `Restaurant` with the full menu and prices),
+which Google reads for its search results. After changing the menu, prices, hours or location, regenerate it:
+
+```sh
+node tools/seo/jsonld.js
+```
+
+The Arabic page has its own address, `https://al-omda.ma/?lang=ar`, listed in `sitemap.xml`.
+Page titles and descriptions per language are the `meta.*` keys in `js/i18n.js`.
+
 ### Adding food photos
 
 Each category has a photo in `assets/photos/` (1200×593 JPEG); a category without one shows its illustration. Put the photo in

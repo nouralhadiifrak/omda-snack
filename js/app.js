@@ -23,7 +23,9 @@
   };
 
   // ---------- State ----------
-  let lang = store.get("lang", "fr") === "ar" ? "ar" : "fr";
+  // ?lang=ar is the Arabic page's own address (search engines index it separately).
+  const urlLang = new URLSearchParams(location.search).get("lang");
+  let lang = (urlLang || store.get("lang", "fr")) === "ar" ? "ar" : "fr";
   let cart = store.get("cart", []);
   let geo = null; // { lat, lng, km } chosen on the delivery map
 
@@ -34,6 +36,8 @@
     .filter((line) => itemIndex.has(line.id))
     // Carts saved before two sauces were allowed stored a single `sauce`.
     .map(({ sauce, ...line }) => ({ ...line, sauces: line.sauces || (sauce ? [sauce] : []) }));
+
+  const SITE_URL = "https://al-omda.ma/";
 
   // ---------- Helpers ----------
   const t = (key, vars = {}) =>
@@ -118,6 +122,9 @@
   function applyI18n() {
     document.documentElement.lang = lang;
     document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
+    document.title = t("meta.title");
+    $('meta[name="description"]').content = t("meta.description");
+    $('link[rel="canonical"]').href = SITE_URL + (lang === "ar" ? "?lang=ar" : "");
     $$("[data-i18n]").forEach((n) => {
       const text = t(n.dataset.i18n);
       if (isFx(n)) setHeading(n, escapeHtml(text));
@@ -980,6 +987,7 @@
   $("#lang-toggle").addEventListener("click", () => {
     lang = lang === "fr" ? "ar" : "fr";
     store.set("lang", lang);
+    history.replaceState(null, "", (lang === "ar" ? "?lang=ar" : location.pathname) + location.hash);
     render();
     renderGeoStatus();
   });

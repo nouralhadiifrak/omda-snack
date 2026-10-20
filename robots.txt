@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /avis/
+
+Sitemap: https://al-omda.ma/sitemap.xml
