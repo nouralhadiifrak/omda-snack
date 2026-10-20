@@ -14,7 +14,7 @@ window.CONFIG = {
   googleReviewUrl: "https://g.page/r/Cfu_Gglx8xjcEBM/review",
   // Full-width hero background photo, e.g. "assets/photos/hero.jpg". Empty = logo artwork.
   heroImage: "",
-  address: { fr: "Hay Anassi, Casablanca", ar: "حي أناسي، الدار البيضاء" },
+  address: { fr: "Anassi, Casablanca", ar: "أناسي، الدار البيضاء" },
   location: { lat: 33.592304, lng: -7.500786 },
   // The Google Maps listing ("Voir la localisation" and "Itinéraire" open it). The CID is read from the review link above.
   googleMapsUrl: "https://maps.google.com/?cid=15859693754594803707",

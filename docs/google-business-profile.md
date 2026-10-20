@@ -10,7 +10,7 @@ then Google verifies the business (usually within a few days).
 ## 1. Before you start
 
 - [ ] A Google account for the restaurant (see above)
-- [ ] The exact street address (street, number, landmark). "Hay Anassi" alone is not enough
+- [ ] The exact street address (street, number, landmark). "Anassi" alone is not enough
 - [ ] The restaurant's phone: **06 75 55 22 11**
 - [ ] A phone at the restaurant, to film the verification video (step 4)
 - [ ] 10 or more photos: storefront with the sign, inside, the counter and spit, dishes
@@ -26,7 +26,7 @@ Go to **<https://business.google.com>** → *Gérer maintenant* / *Manage now*, 
 | Business type | Physical location that customers visit (*Établissement physique*) |
 | Primary category | **Restaurant de shawarmas** (*Shawarma restaurant*) |
 | Location | Street address, then move the pin onto the shop (coordinates: 33.592304, -7.500786) |
-| Do you also deliver? | **Yes**: add the delivery area *Hay Anassi* and nearby neighbourhoods (about 4 km) |
+| Do you also deliver? | **Yes**: add the delivery area *Anassi* and nearby neighbourhoods (about 4 km) |
 | Phone | 06 75 55 22 11 |
 | Website | https://al-omda.ma |
 
@@ -38,7 +38,7 @@ Go to **<https://business.google.com>** → *Gérer maintenant* / *Manage now*, 
 
 **Description** (French, max. 750 characters):
 
-> AL-OMDA (العمدة) est un snack de Hay Anassi, à Casablanca, spécialisé dans la
+> AL-OMDA (العمدة) est un snack d'Anassi, à Casablanca, spécialisé dans la
 > shawarma grillée à la broche et servie généreusement avec nos sauces maison.
 > Au menu également : tacos, bowls, burgers, pizzas, calzones, pasticcio,
 > mac & cheese, pâtes, brochettes, salades et menu enfant. Sur place, à emporter
