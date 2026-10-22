@@ -1,6 +1,6 @@
-# AL-OMDA · العمدة
+# AL OMDA · العمدة
 
-One-page website for AL-OMDA, a shawarma and snack restaurant in Anassi, Casablanca.
+One-page website for AL OMDA, a shawarma and snack restaurant in Anassi, Casablanca.
 It is plain HTML, CSS and JavaScript, with no build step.
 
 - French and Arabic (right-to-left) with a language toggle
@@ -28,11 +28,15 @@ python3 -m http.server 8000
 ### Search engines (SEO)
 
 `index.html` carries the restaurant's structured data (schema.org `Restaurant` with the full menu and prices),
-which Google reads for its search results. After changing the menu, prices, hours or location, regenerate it:
+which Google reads for its search results. It also holds a plain-HTML copy of the menu, sauces, address,
+hours and phone, for crawlers and link previews that don't run JavaScript; `js/app.js` renders over it.
+After changing the menu, prices, hours, address or phone, regenerate both (needs Playwright):
 
 ```sh
-node tools/seo/jsonld.js
+NODE_PATH=$(npm root -g) node tools/seo/prerender.js
 ```
+
+`node tools/seo/jsonld.js` alone refreshes only the structured data.
 
 The Arabic page has its own address, `https://al-omda.ma/?lang=ar`, listed in `sitemap.xml`.
 Page titles and descriptions per language are the `meta.*` keys in `js/i18n.js`.

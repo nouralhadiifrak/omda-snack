@@ -1076,9 +1076,14 @@
   const plateEl = part("plate");
   const moustacheEl = part("moustache");
   const wait = (ms) => new Promise((r) => setTimeout(r, ms));
-  const pageLoaded = new Promise((r) =>
-    document.readyState === "complete" ? r() : window.addEventListener("load", r, { once: true })
-  );
+  // The page's own load, but never more than 1.5 s: slow images shouldn't hold the reveal.
+  const pageLoaded = Promise.race([
+    new Promise((r) => (document.readyState === "complete" ? r() : window.addEventListener("load", r, { once: true }))),
+    wait(1500),
+  ]);
+  // Returning visitors (intro seen in the last 7 days) get a quick fade instead.
+  const INTRO_EVERY = 7 * 24 * 3600 * 1000;
+  const introSeen = Date.now() - store.get("introSeen", 0) < INTRO_EVERY;
 
   // Photo-1 pose of each layer, relative to its final place in the logo.
   const HAT_START = "translate(-1.35%, 25.9%) scale(1.2048)";
@@ -1100,6 +1105,11 @@
 
   async function playIntro() {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (introSeen) {
+      splash.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 250, fill: "forwards" }).finished.then(finishIntro);
+      return;
+    }
+    store.set("introSeen", Date.now());
     const images = $$("img", stage);
     const ready = Promise.all(images.map((img) => img.decode().catch(() => {})));
     // Never hold the page back for long if the pictures are slow.
