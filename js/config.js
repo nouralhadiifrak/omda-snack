@@ -1,6 +1,6 @@
 /* Restaurant details used across the site. */
 window.CONFIG = {
-  name: "AL-OMDA",
+  name: "AL OMDA",
   nameAr: "العمدة",
   phone: "0675552211",
   phoneIntl: "+212675552211",
@@ -13,7 +13,8 @@ window.CONFIG = {
   googleReviewUrl: "https://g.page/r/Cfu_Gglx8xjcEBM/review",
   // Full-width hero background photo, e.g. "assets/photos/hero.jpg". Empty = logo artwork.
   heroImage: "",
-  address: { fr: "Anassi, Casablanca", ar: "أناسي، الدار البيضاء" },
+  // Same text as the Google listing (its address is the plus code of the pin).
+  address: { fr: "HFRX+VMX, Anassi, Casablanca", ar: "HFRX+VMX، أناسي، الدار البيضاء" },
   location: { lat: 33.592304, lng: -7.500786 },
   // The Google Maps listing ("Voir la localisation" and "Itinéraire" open it). The CID is read from the review link above.
   googleMapsUrl: "https://maps.google.com/?cid=15859693754594803707",

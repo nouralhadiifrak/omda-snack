@@ -1,5 +1,5 @@
 /*
- * AL-OMDA menu.
+ * AL OMDA menu.
  *
  * To change a price, edit the number. To add a photo for a category, put the
  * file in assets/photos/ and set `image` (e.g. image: "assets/photos/shawarma.jpg").

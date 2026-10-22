@@ -1,8 +1,8 @@
 /* Interface text in French and Arabic. Menu item names live in menu-data.js. */
 window.I18N = {
   fr: {
-    "meta.title": "AL-OMDA · العمدة — Shawarma & Snack à Anassi, Casablanca",
-    "meta.description": "Snack AL-OMDA à Anassi, Casablanca : shawarma grillée à la broche, tacos, burgers, pizzas. Ouvert tous les jours de 12h à minuit. À emporter ou en livraison.",
+    "meta.title": "AL OMDA · العمدة — Shawarma & Snack à Anassi, Casablanca",
+    "meta.description": "Snack AL OMDA à Anassi, Casablanca : shawarma grillée à la broche, tacos, burgers, pizzas. Ouvert tous les jours de 12h à minuit. À emporter ou en livraison.",
     "nav.menu": "Notre menu",
     "nav.sauces": "Sauces",
     "nav.info": "Infos",
@@ -70,7 +70,7 @@ window.I18N = {
     "modal.close": "Fermer",
     "size.M": "Moyenne",
     "size.L": "Large",
-    "wa.hello": "Bonjour AL-OMDA, je voudrais commander :",
+    "wa.hello": "Bonjour AL OMDA, je voudrais commander :",
     "wa.type": "Mode",
     "wa.name": "Nom",
     "wa.phone": "Téléphone",
@@ -91,7 +91,7 @@ window.I18N = {
     "wa.distance": "Distance",
   },
   ar: {
-    "meta.title": "العمدة · AL-OMDA — شاورما وسناك فأناسي، الدار البيضاء",
+    "meta.title": "العمدة · AL OMDA — شاورما وسناك فأناسي، الدار البيضاء",
     "meta.description": "سناك العمدة فأناسي، الدار البيضاء: شاورما مشوية على السيخ، طاكوس، برغر، بيتزا. مفتوح كل يوم من 12:00 حتى 00:00. استلام من المحل ولا توصيل.",
     "nav.menu": "القائمة",
     "nav.sauces": "الصلصات",

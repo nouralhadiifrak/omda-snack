@@ -1,4 +1,4 @@
-# Google Business Profile — AL-OMDA
+# Google Business Profile — AL OMDA
 
 Everything to copy and paste when creating the profile. It takes about 20 minutes,
 then Google verifies the business (usually within a few days).
@@ -22,7 +22,7 @@ Go to **<https://business.google.com>** → *Gérer maintenant* / *Manage now*, 
 
 | Question | Answer |
 | --- | --- |
-| Business name | **AL-OMDA** (or **Al Omda – العمدة**, exactly as on the sign; don't add keywords, Google suspends profiles for that) |
+| Business name | **AL OMDA**, exactly as on the sign (the listing was created as "AL OMDA FAST FOOD": rename it; don't add keywords, Google suspends profiles for that) |
 | Business type | Physical location that customers visit (*Établissement physique*) |
 | Primary category | **Restaurant de shawarmas** (*Shawarma restaurant*) |
 | Location | Street address, then move the pin onto the shop (coordinates: 33.592304, -7.500786) |
@@ -38,7 +38,7 @@ Go to **<https://business.google.com>** → *Gérer maintenant* / *Manage now*, 
 
 **Description** (French, max. 750 characters):
 
-> AL-OMDA (العمدة) est un snack d'Anassi, à Casablanca, spécialisé dans la
+> AL OMDA (العمدة) est un snack d'Anassi, à Casablanca, spécialisé dans la
 > shawarma grillée à la broche et servie généreusement avec nos sauces maison.
 > Au menu également : tacos, bowls, burgers, pizzas, calzones, pasticcio,
 > mac & cheese, pâtes, brochettes, salades et menu enfant. Sur place, à emporter
@@ -61,7 +61,7 @@ Convient aux enfants · Repas rapide · Places assises
 Google chooses the method. In Morocco it's usually a **video**:
 one continuous video (1–2 minutes) filmed on the spot, showing:
 
-1. The street and a nearby landmark, then the storefront with the **AL-OMDA sign**
+1. The street and a nearby landmark, then the storefront with the **AL OMDA sign**
 2. Walking inside: the counter, the spit, the kitchen equipment
 3. Proof that you manage the place: unlocking the door or the till, or a menu or receipt with the name
 
