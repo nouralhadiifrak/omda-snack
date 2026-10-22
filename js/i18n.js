@@ -1,7 +1,7 @@
 /* Interface text in French and Arabic. Menu item names live in menu-data.js. */
 window.I18N = {
   fr: {
-    "meta.title": "AL-OMDA (العمدة) · Shawarma, tacos et burgers à Anassi, Casablanca",
+    "meta.title": "AL-OMDA · العمدة — Shawarma & Snack à Casablanca",
     "meta.description": "Snack AL-OMDA à Anassi, Casablanca : shawarma grillée à la broche, tacos, burgers, pizzas. Ouvert tous les jours de 12h à minuit. À emporter ou en livraison.",
     "nav.menu": "Notre menu",
     "nav.sauces": "Sauces",
@@ -91,7 +91,7 @@ window.I18N = {
     "wa.distance": "Distance",
   },
   ar: {
-    "meta.title": "العمدة AL-OMDA · شاورما، طاكوس وبرغر فأناسي، الدار البيضاء",
+    "meta.title": "العمدة · AL-OMDA — شاورما وسناك فالدار البيضاء",
     "meta.description": "سناك العمدة فأناسي، الدار البيضاء: شاورما مشوية على السيخ، طاكوس، برغر، بيتزا. مفتوح كل يوم من 12:00 حتى 00:00. استلام من المحل ولا توصيل.",
     "nav.menu": "القائمة",
     "nav.sauces": "الصلصات",
