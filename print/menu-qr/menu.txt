@@ -1,0 +1,132 @@
+AL OMDA - MENU (prix en DH)
+
+SHAWARMA
+Original : 20
+Frites : 25
+Fromage : 28
+Kebab : 30
+Spécial : 35
+Saroukh : 40
+Plat Shawarma Arabe : 50
+
+TACOS
+Poulet : 30
+Nuggets : 32
+Mixte : 35
+Crispy : 35
+Cordon Bleu : 40
+El Omda Royal : 55
+
+TACOS BOWLS
+Bowl Eco : 45
+Bowl Maxi : 55
+
+BURGERS
+Cheese Burger : 28
+Chicken Burger : 30
+Double Cheese : 38
+Double Chicken : 40
+El Omda Royal : 50
+
+BARQUETTES
+Nuggets : 32
+Chicken Crispy : 35
+Cordon Bleu : 40
+
+BAGETTO
+Dinde fumée : 32
+Nuggets : 33
+Poulet : 35
+Viande hachée : 37
+Mixte : 40
+Cordon bleu : 43
+
+SANDWICHS FAIT MAISON
+Thon : 25
+Poulet : 30
+Viande hachée : 35
+Crispy : 35
+Mixte : 40
+
+PIZZAS
+Margherita : M 25 / L 30
+Charcuterie : M 30 / L 35
+Thon : M 33 / L 38
+Viande hachée : M 40 / L 50
+Poulet : M 40 / L 45
+Forestière : M 40 / L 45
+Quatre fromages : M 40 / L 45
+Quatre saisons : M 45 / L 50
+Fruits de mer : M 45 / L 55
+El Omda Royal : M 60 / L 75
+
+CALZONES
+Dinde fumée : 30
+Thon : 30
+Poulet : 35
+Viande hachée : 37
+Mixte : 40
+Fruits de mer : 45
+
+PASTICCIO
+Charcuterie : 25
+Poulet : 30
+Viande hachée : 35
+Mixte : 40
+
+MAC & CHEESE
+Dinde fumée : 30
+Poulet : 35
+Viande : 37
+Mixte : 40
+Fruits de mer : 45
+
+PÂTES
+Sauce blanche : 27
+Sauce champignons : 27
+Carbonara : 35
+Poulet sauce blanche : 35
+Poulet sauce champignons : 35
+4 fromages : 35
+Bolognaise : 40
+Fruits de mer : 50
+
+PLATS CHICKEN
+Sauce champignons : 43
+Sauce blanche : 43
+Cordon bleu : 47
+Alfredo : 50
+Royal El Omda : 55
+
+BROCHETTES
+Poulet : 45
+Viande hachée : 50
+Mixte : 55
+
+SALADES
+niçoise : 30
+chef : 40
+
+SNACKS
+Cheesy Fries : 15
+
+MENU ENFANT
+Menu enfant (wrap ou burger + boisson + frites) : 35
+
+SUPPLÉMENTS
+Gratiné : 10
+Fondu : 15
+Légumes : 10
+Sauce : 3
+Chicken : 7/pc
+Nugget : 4/pc
+Frites : 5
+Pâtes : 15
+
+BOISSONS
+Soda (Coca-Cola, Hawai, Poms, Sprite, Fanta) : 7
+Eau minérale : 5
+Jus (citron, orange) : 12
+
+Site : al-omda.ma
+Instagram : @al_omda_001
