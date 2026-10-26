@@ -333,9 +333,32 @@ window.MENU = [
     image: "",
     compact: true,
     items: [
-      { id: "drk-soda", emoji: "🥤", fr: "Soda", ar: "مشروب غازي", price: 7 },
+      {
+        id: "drk-soda",
+        emoji: "🥤",
+        fr: "Soda",
+        ar: "مشروب غازي",
+        price: 7,
+        options: [
+          { fr: "Coca-Cola", ar: "كوكا كولا" },
+          { fr: "Hawai", ar: "هاواي" },
+          { fr: "Poms", ar: "بومس" },
+          { fr: "Sprite", ar: "سبرايت" },
+          { fr: "Fanta", ar: "فانتا" },
+        ],
+      },
       { id: "drk-eau", emoji: "💧", fr: "Eau minérale", ar: "ماء معدني", price: 5 },
-      { id: "drk-jus", emoji: "🧃", fr: "Jus", ar: "عصير", price: 12 },
+      {
+        id: "drk-jus",
+        emoji: "🧃",
+        fr: "Jus",
+        ar: "عصير",
+        price: 12,
+        options: [
+          { fr: "Jus de citron", ar: "عصير الحامض" },
+          { fr: "Jus d'orange", ar: "عصير البرتقال" },
+        ],
+      },
     ],
   },
 ];
